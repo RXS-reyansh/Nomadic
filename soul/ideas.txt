@@ -1,0 +1,11 @@
+- Next, I can add an AFK status lookup command that lets users check their own or another user’s current AFK scope, reason, and duration. Would you like me to do that?
+
+- Also add dedicated song channel functionality.
+Its command will be "songs-channel"
+What happens in it is that, any admin can set the song channel using this command (has to be a text channel)
+And, in that channel, if any user just writes anything, that thing is taken as a song name.
+For example, "starboy", bot executes "play starboy"
+
+- LIST command
+
+- Next, I can wire a "status" developer command that lets you preview, force-rotate, or temporarily override the active status entry without restarting the bot. Would you like me to do that?

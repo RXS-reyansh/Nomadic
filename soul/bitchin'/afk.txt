@@ -1,0 +1,54 @@
+Make an afk command in utility. Any user can use.
+Arguments:
+1st: text
+2nd: image
+(both optional)
+
+When used afk command, it shows a confirmation component message:
+# ${emojis.AFK} Away from Keyboard Confirmation
+(separator)
+## Are you sure you want to set your AFK status to:
+(afk text if provided) [if no text provided then reason: "Reason not provided."]
+(afk image if provided)
+(separator)
+("Server AFK" button GREY) ("Global AFK" button GREY) ("Cancel" button RED)
+(separator)
+-# AFK gets removed when you send a message.
+
+User can use emojis using the regex $emoji
+User can add new lines using \n or can actually type:
+"(prefix)afk hello line1
+hello line2
+hello line3"
+
+The buttons should be active for 60 seconds. They get disabled after that. And at the bottom it shows "-# Confirmation timed out" instead of previous one (edit the message ofc).
+
+In case of server AFK: the user's afk is set to the server only in which the message was sent in. If user sends message in any other server, the afk doesn't get removed.
+In case of global AFK: user's afk to all servers the bot is in, if user sends message in any server the afk gets removed.
+
+Now, when anyone mentions the user, or replies to user's message when the user is afk, the bot sends a component message:
+# ${emojis.whiteGhost} <user's display name> is Away from Keyboard!
+(separator)
+Since: (time ago like "40 seconds ago" or "a minute ago" like that it should be relative, i guess @time is used for that)
+Reason: text line1
+line2
+...
+lineN
+(image)
+(separator)
+-# Mentioned by <username of user who mentioned> at (time) [time should be like 06:45 or 23:53]
+
+When afk removed:
+${emojis.bluePlanet} Your AFK has been removed. You were away for (x decades, x years, x months, x days, x hours, x minutes and x seconds) 
+[lol just make helper for time, and all these should be there, lets say only 1 hour, 4 minutes and 23 seconds passed then it should only show "1 hour, 4 minutes and 23 seconds"]
+(separator)
+-# At 23:03, 01/01/1985 (such format)
+
+USE statusMessages.ts exports if necessary (no plain messages)
+Make components in soul/components/
+Remove previous afk related things from soul/database/database.ts and make new fresh ones to work properly with above. Yes, afk related things will be saved to database and fetches from there.
+
+Also make slash! optional text and image.
+And if any DEVELOPER wants then they can even add @time at the end of their afk message, the bot will read that and set the developer's afk @time since or till that time. Only a developer. This @time should be provided at the last! If provided at last IT WILL NOT BE TAKEN AS REASON!
+
+Update replit.md as the same. Or, update it FIRST according to these! Then implement this afk!

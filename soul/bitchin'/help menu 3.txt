@@ -1,0 +1,28 @@
+Make a categories.ts file in soul/config
+It should have name of each category and have some description for that category. Do not dynamically load, write the name of category there. Each category should have an index (starting from 1). For example Music should have index 1. Rest you can gie as per yourself. Description too as per yourself. Names should be: Music, info, customisation, utility
+
+Finally, make a dropdown below the buttons.
+The dropdown should always show "Navigate the soundscape."
+(also tell whether custom emojis is possible here)
+On clicking the dropdown, it should show all the categories (not the excluded ones ofcourse)
+
+Inside the dropdown:
+category 1 (description: fetch description from categories.ts file)
+catergory 2 (description: fetch description from categories.ts file)
+...
+category n (description: fetch description from categories.ts file)
+
+Each should have ${emojis.greenSparkles}
+
+When clicked on a category, the component message changes into:
+same heading as home
+description "**A symphony tailored for you.**"
+same thumbnail as home
+(separator)
+## ${emojis.blackCross} Category name
+`command name 1`, `command name 2`, .. `command name n`
+(separator)
+both buttons as home
+dropdown (should be showing "Navigate the soundscape.")
+(separator)
+invite and support server link same as home

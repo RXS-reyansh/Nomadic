@@ -1,0 +1,33 @@
+Make following commands: add, clear, loop, remove, volume, servervolume, shuffle, move, grab (all these in music)
+
+I have added reference files from my previous bot. They are inside reference directory that is in root. You don't have to copy them, just take reference of what to do from them.
+
+Use statusMessages.ts wherever necessary.
+
+Explanation:
+add - <position> <rest all is song name, link, playlist link>
+this adds a song or playlist from that index, the song which was on that index in the queue, gets after the track.
+
+clear - no argument, clears the queue
+
+loop - if no args, loops the current track
+if arg "queue", then loops the whole queue (reaches last song, starts repeating from which song it started, again and again)
+
+remove - 1 required argument <position> or amount
+if <position> then removes the song from that position in the queue
+if amount then 1 more required arg, <amount>, removes that many number of songs from the queue (from index 1 to that number)
+
+volume - controls volume, once set, the volume remains till the queueEnds.
+
+servervolume - controls volume, BUT this volume remains in that server forever. see, when someone uses volume command and change to something else, it does so, but till the end of queue, otherwise whenever a new queueStarts, the server volume is set
+(both values can be from 0 to 100)
+(if servervolume set then it shows "(Server volume)" after the volume value in nowplaying)
+
+shuffle - no argument, shuffles the queue RANDOMLY
+
+move - 2 required arguments: <initial position> <final position>
+moves the song from initial position to the final position, the song which was at final position gets shifted by +1, and every other song that was after it does that too (shift by +1 in the queue)
+
+grab - I don't know much about this command, but I know other bots have this. Can you search for it and implement. Mention what it does at the end of response.
+
+Firstly, you have to be saving the queue somewhere. Afterwards when I will make queue command, I will want a feature to go back to the previous tracks.

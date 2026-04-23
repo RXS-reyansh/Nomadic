@@ -1,0 +1,20 @@
+In help component message, when on home, home button should be disabled, rest of the time, enabled.
+When on all commands page, all commands button should be disabled, rest of the time, enabled.
+After 3 minutes of **inactivity** with the buttons and dropdown, the buttons and dropdown should get disabled.
+
+Now, you have to make a component message for help <command name>. It will be:
+# {emojis.bloodRip} Command Info
+(separator)
+## <command name> command
+${emojis.whiteArrow} **Description:** (description is in each commands file)
+${emojis.whiteArrow} **Usage:** (usage)
+[IF USAGE IS OF MULTIPLE LINES THEN:
+${emojis.whiteArrow} **Usage:**
+line1
+line2
+(make sure they indent properly)
+...
+]
+${emojis.whiteArrow} **Aliases:** (all aliases separated by comma) [IF NO ALIAS, then "No aliases exist."]
+(separator)
+-# Use {global/server prefix}help to see all commands.

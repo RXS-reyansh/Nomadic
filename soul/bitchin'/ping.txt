@@ -1,0 +1,18 @@
+Make a new command.
+Command name: ping
+Arguments: none (if provided then works usually)
+What it does: shows bot's ping info
+
+When used it sends a component V2 message:
+## ${emojis.redBlackCross} Cluster (cluster ID)
+(separator)
+### The bot is working perfectly. (show "The bot is NOT working properly." if some issue)
+- API Latency:
+- Websocket Ping:
+- Database Latency:
+- Lavalink Latency: 
+- Shard ID: <shard id>
+(separator)
+-# Requested by <username of the user who used ping command> at 00:01 | For more info use (server/global prefix)debug command.
+
+You don't have to make debug command yet.

@@ -1,0 +1,53 @@
+Make two new commands.
+-----
+command name: purge
+1 argument is required
+
+Arguments:
+all: deletes all the messages in the channel
+
+text: 1 required argument and 9 more arguments which are optional, deletes all the messages in the channel containing that specific text.
+example 1: purge text hello1 - deletes all messages which contain "hello1" in the channel
+example 2: purge text "hello1" "hello2" - deletes all messages which contain either of these two in the channel
+
+bot: 1 optional argument amount - deletes messages of any bot in the channel
+example 1: purge bot - deletes all the messages of any bot in the channel
+example 2: purge bot 10 - deletes 10 messages of any bot in the channel (10 messages of a bot should be deleted)
+
+user: 1 required user argument, 1 optional amount argument
+example 1: purge user <user1 mention, id, username> - all messages in the channel
+example 2: purge user <user1 mention, id, username> 15 - 15 messages of that particular user
+
+amount: 1 required amount argument, deletes that many number of recent messages in the channel (exclude command message)
+
+<number>: no arguments, ignore if provided, deletes that many number of recent messages in the channel (exclude command message)
+
+(Both amount <number> and <number> work same.)
+(In text, different text are separated by using double quotes)
+
+On success, send: sendSuccess "Successfully deleted <number of messages that have been deleted> messages."
+
+-------------
+command name: serverpurge
+1 argument is required
+
+Arguments:
+text: (same as purge, but deletes across the whole server)
+
+user: (same as purge accepts multiple users (user mention/ID/username) separated by space but across the server)
+ 
+bot: deletes all bot messages across the server
+
+
+On success, send: sendSuccess "Successfully deleted <number of messages that have been deleted> messages across <number of channels from which messages were deleted> channels."
+
+----------
+IMPORTANT: the command message sent by user shouldn't get deleted in any of the above case, when the success message is sent, after 5 seconds, both the success message and the command message should get deleted.
+
+NOTE: command message means the message that was sent to execute the command. for example "purge 1, purge text hello1"
+
+PROVIDE PROPER USAGE IN THE COMMAND FILES!
+USE statusMessages.ts if necessary.
+CREATE HELPER FILES IF NECESSARY!
+
+I HAVE TRIED TO SPECIFY A LOT, STILL IF SOME LOOPHOLE OR CONDITION WAS LEFT, THEN JUST UHM, IMPLEMENT IT. BUT ALSO LIST IT AT THE END OF YOUR RESPONSE.

@@ -1,0 +1,7 @@
+sent this directly to bot, anyways here:
+
+If the bot has 24/7 enabled, but someone uses play command while being in some other channel, the bot should have joined that channel. And after queue ends, after 3 minutes of inactivity should have left that other vc and joined the 24/7 one again. Inactivity means nothing else played in that time window. If something else plays in that channel, then on another queueEnd the bot should start inactivity timer. 
+Also if in that time window play command used by a user in now some other voice channel, the bot joins.
+Check if 24/7 channel or not. Only then join the 24/7 channel, otherwise rejoin would make no sense.
+
+But it doesn't do that all right now for some reason, I surely implemented that. Fix that. (also change 3 minutes to 2 minutes)

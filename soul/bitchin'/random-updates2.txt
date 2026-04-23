@@ -1,0 +1,8 @@
+// actually wrote this directly into the chat, here it is anyways:
+Actually, for the hosting service name, make a file in soul/config. I will provide Service name and their corresponding IP, if the IP extracted at startup matches IP then that name should be used everywhere. And if none of them exist then "Local Host". Also define a hardcodeHostingService variable in config.ts file. It should be empty string, but if it isn't empty then whatever string is in that variable should be used as hosting service name. (the hosting service config file will be ignored then)
+
+Also define databaseProvider in config.ts. It should be used instead of hardcoding "MongoDB Atlas" right now.
+
+And in debug, the database and powered by should be before the thumbnail, otherwise it shows this big gap between heading and the description lines.
+
+And in webhook logger, you are mistaken. The emojis can be in the title, they were before. Remove from description, back to title! I did say instead of using emojis from emojis.ts, in the webhook logger file, preferably somewhere near the beginning, define all those emojis with same name. I will provide the emojis markdown there. I guess the problem is that webhooks cannot access emojis from some other server. So I will provide same emojis from the server the webhooks are being sent in.

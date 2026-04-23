@@ -1,0 +1,66 @@
+{
+  "compilerOptions": {
+    // Target modern JS (ES2022 supports top-level await)
+    "target": "ES2022",
+    // Use Node.js ES modules
+    "module": "Node16",
+    // Standard libraries (DOM is for emoji/URL handling, safe to keep)
+    "lib": ["ES2020", "DOM"],
+    // Only include Node.js types (Discord.js types are bundled)
+    "types": ["node"],
+    // Output compiled JS into /dist
+    "outDir": "./dist",
+    // Root directory for source files (project root)
+    "rootDir": "./",
+    // DISABLE all strict family checks (this is the main "relax" switch)
+    "strict": false,
+    // Allows default imports from CommonJS modules
+    "esModuleInterop": true,
+    // Skip type checking of declaration files (faster builds)
+    "skipLibCheck": true,
+    // Enforce consistent file naming (e.g., import x from './file.js')
+    "forceConsistentCasingInFileNames": true,
+    // Allow importing JSON files
+    "resolveJsonModule": true,
+    // Generate .d.ts declaration files (for library usage)
+    "declaration": true,
+    // Generate source maps for .d.ts files
+    "declarationMap": true,
+    // Generate source maps for debugging
+    "sourceMap": true,
+    // Disallow implicit 'any' type (still a good rule)
+    "noImplicitAny": true,
+    // DISABLE strict null checks (this stops errors about .send on PartialGroupDMChannel)
+    "strictNullChecks": false,
+    // Ensure function parameters are typed correctly (keep enabled)
+    "strictFunctionTypes": true,
+    // Ensure bind/call/apply are typed correctly (keep enabled)
+    "strictBindCallApply": true,
+    // Ensure class properties are initialized (keep disabled for flexibility, but be careful)
+    "strictPropertyInitialization": false,
+    // Disallow 'this' with implicit 'any' (keep enabled)
+    "noImplicitThis": true,
+    // Enforce 'use strict' in every file (good practice)
+    "alwaysStrict": true,
+    // DISABLE reporting unused local variables (relaxed)
+    "noUnusedLocals": false,
+    // DISABLE reporting unused function parameters (relaxed)
+    "noUnusedParameters": false,
+    // Ensure every code path returns a value (keep enabled)
+    "noImplicitReturns": true,
+    // Prevent fallthrough in switch statements (keep enabled)
+    "noFallthroughCasesInSwitch": true,
+    // Allow synthetic default imports from non-ES modules
+    "allowSyntheticDefaultImports": true,
+    // Keep catch variables as 'unknown' (safer, keep enabled)
+    "useUnknownInCatchVariables": true,
+    // DISABLE exact optional property types (very strict, often annoying)
+    "exactOptionalPropertyTypes": false,
+    // Module resolution strategy for Node16
+    "moduleResolution": "node16"
+  },
+  // Include all .ts files in root and soul/ subfolder
+  "include": ["*.ts", "soul/**/*"],
+  // Exclude build output and dependencies
+  "exclude": ["node_modules", "dist"]
+}

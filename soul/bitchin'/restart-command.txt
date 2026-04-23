@@ -1,0 +1,9 @@
+Make a command named restart. Only in prefix. Developer only command. It turns off the console and after 15 seconds starts it again, basically restarts the bot. My developer friend has told that such thing is possible. If turning off terminal and then starting it again is not possible then do any other thing that restarts the bot.
+
+It should ask for confirmation in a components v2 message (make in soul/components):
+## Are you sure you want to restart the bot?
+(confirm button - green) (cancel button red)
+(separator)
+
+when on confirm: message gets edited sendInfo "Bot restart initiated. (botname) will restart soon."
+when on cancel: message gets edited sendError "Bot restart cancelled. Right decision?"

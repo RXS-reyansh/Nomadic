@@ -1,0 +1,30 @@
+Change restart command name to restart-bot.
+Make two new commands: stop-bot and start-bot
+
+stop-bot: stops the bot by killing the cluster(s)
+start-bot: stars the bot
+
+Now tell me is it possible to use start command BY ANY MEANS if the bot is off without giving up proper functionality? If no, then just don't add start-bot command.
+
+these commands would have same reply as the restart-bot command, but with different context ofcourse.
+
+---------------
+
+Add funtionality to use commands by mentioning the bot, that is:
+@bot play hello (executes the play command) (@bot means the bot is mentioned, the bot mention should be the first string of the message, not like anywhere in the message.)
+Also, if anything that isn't a command like:
+@bot xyz
+then sendError "Command not found. Use (prefix)help to see all commands."
+
+And if the bot is only mentioned in a message, that is:
+@bot 
+(ONLY THIS MUCH AND NOTHING ELSE)
+Then the bot should send sendInfo "Prefix in this server is "(native prefix)". Use (native prefix)help to see all commands." (and don't encode prefix and command inside ``)
+
+If bot is mentioned in a message in any other way like:
+Hello, I think @bot is cool.
+Use @bot
+
+Then just nothing happens. The bot doesn't have to reply. The bot just replies if the first string has mentioned the bot.
+
+---------------

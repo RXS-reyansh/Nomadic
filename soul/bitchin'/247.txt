@@ -1,0 +1,28 @@
+New functionality: 24/7
+Commands: 24/7
+Arguments: enable, disable, view
+alias: 24-7, twentyfourseven, twenty-four-seven, 24*7
+
+Arguments explained:
+enable: takes 1 optional argument of **VOICE CHANNEL** id and <#(id)> form, if none provided, takes the channel it is connected to as 24/7 channel. If not in any channel and no arguments provided, then error. 
+
+disable: no argument, if provided then ignore. disables 24/7 in the server.
+
+view: no argument if provided then ignore. shows which channel is set for 24/7 in the server.
+
+See, if any channel is set for 24/7, then the bot stays in that channel forever (one exception listed afterwards).
+The bot should auto-connect to that channel at startup.
+soul/database/database.ts already has 24/7 things, but I did prefer you to remove that and create new fresh functions.
+
+And, if a user is in any other voice channel, and uses bot's command, then the bot can shift to that other voice channel and play music (do whatever), after queueEnd, bot should wait for 3 minutes and rejoin the 24/7 channel. If user uses join to another vc, then bot joins, but leaves after 3 minutes of inactivitym means nothing was played, if anything starts playing in this 3 minute window, then the same rejoin 3 minutes after queueEnd logic
+
+On 24/7 view: it shows sendInfo "24/7 channel is: <#(channel id)>"
+Also make slash. In enable optional channel field, it should list all the **VOICE CHANNELS** of the server, the voice channels.
+
+If already enabled and same channel provided to enable: sendInfo "appropriate message that already that channel"
+If already disabled then handle that too with sendInfo
+
+HANDLE THESE VERY CAREFULLY!
+Use statusMessages.ts properly!
+Make helper if needed (for join at startup maybe helper is needed)
+Also find any loopholes (don't implement fixes for those loopholes, just find) [i don't think there will be]

@@ -1,0 +1,40 @@
+All developers will be able to use noprefix functionality.
+It means all commands are accessible without prefix.
+Noprefix user: help
+Bot: executes help command
+Noprefix user: hello
+Bot: nothing since such command doesn't exist
+
+There will be a noprefix command. Only developers can use it (isDeveloper: true). (alias: nop)
+
+Arguments in noprefix command:
+add <user id or user mention or username>
+remove <user id or user mention or username>
+list (no further arguments, if provided then ignore)
+enable (no further arguments, if provided then ignore)
+disable (no further arguments, if provided then ignore)
+server enable/disable/list
+
+noprefix add - adds a user to noprefix list
+noprefix remove - removes a user from noprefix list
+noprefix list - lists the noprefix list
+noprefix enable - globally enables the noprefix
+noprefix disable - globally disables the noprefix
+noprefix server enable - enables noprefix in the server command was sent in
+noprefix server enable <server id> - enables noprefix in the server whose id is provided
+noprefix server disable - disables noprefix in the server command was sent in
+noprefix server disable <server id> - disables noprefix in the server whose id is provided
+noprefix server list - lists all the servers which have noprefix disabled
+
+Use sendSuccess and sendError of statusMessages.ts if necessary.
+Use/edit database.ts. Store noprefix data in database for user and server.
+
+In case of noprefix list and noprefix server list, send component message:
+# ${emojis.bloodRip} Noprefix (Users/Disabled Servers) list
+(separator)
+- user1/server1
+- user2/server2
+...
+- userN/serverN
+(separator)
+-# Total users: <number of users with noprefix access> (don't count developers until)

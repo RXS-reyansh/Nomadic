@@ -1,0 +1,15 @@
+Add century counter too in date (i am doing this all for fun only lol)
+
+When the afk is removed, the afk removed message is sent. It doesn't have fullstop at the end, the afk removed message, add fullstop after seconds.
+
+The afk confirmation message should be sent as a reply (mentions: off)
+And when a user clicks on any button of afk (except cancel) in afk confirmation message, the message should get edited to sendSuccess "Your AFK has been set for this server." OR "Your afk has been set for all mutual server."
+If cancel: sendError "AFK confirmation cancelled by the user."
+
+AND FROM COMMAND_AUDIT_NOTES implement:
+1. AFK can create database work on every normal message
+4. AFK slash command may not defer before reply
+5. AFK image URL accepts any trailing HTTP URL
+Remove 2 and 3 from that file.
+
+Implement NOTHING ELSE! ONLY THIS MUCH RIGHT NOW!

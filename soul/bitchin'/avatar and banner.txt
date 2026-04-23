@@ -1,0 +1,27 @@
+# ${emojis.blackButterfly} <username>'s avatar/banner
+(separator)
+(avatar/banner image)
+(separator)
+("Send in DM" button) ("Download" button)
+
+(the buttons should get inactive after 5 minutes)
+NOTES:
+- No arguments then the avatar/banner of the user who used the command
+- No avatar (can't be since discord has default avatar)
+- No banner (appropriate err message using sendError)
+- Special argument: server or srv then server's banner or avatar
+- In case of server replace <username> with server name
+- Special argument: bot then bot's banner or avatar
+- In case of bot replace <username> with "Bot" word
+- If the user's or bot's per-server avatar/banner exists, then the bot sends a confirmation component message , that is:
+
+# Choose avatar/banner
+(separator)
+<display name> has server-specific avatar. Which one would you like to see?
+<"Server Avatar/Banner" button> <"Global Avatar/Banner" button>
+(separator)
+-# You have 60 seconds to decide.
+
+the buttons should get inactive after 60 seconds. after 60 seconds the "You have 60 seconds to decide" should get changed to "Confirmation timed out."
+make this component in another file in soul/components.
+And wherever I have used avatar/banner, you have to display one of those depends on which command has been used.

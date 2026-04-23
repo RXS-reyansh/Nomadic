@@ -1,0 +1,83 @@
+You have to add sticky message functionality/utility.
+It will also have a command named "sticky" with text arguments (accepting \n, raw new line, emoji regex that is in say and others, and formatting ofc)
+
+Now see, only 1 sticky message can be set per-channel.
+Sticky message can be set in any channel.
+Only administrator can set it.
+
+Sticky message means that the provided message remains at the end/bottom of the chat FOREVER.
+Even if the bot itself sends any message, the sticky message should stay. BUT make sure that previous sticky message sent by the bot is not taken into reference, as such will result in infinite loop since the bot will be sending the message again and again.
+
+READ "reference" directory that is in root. The logic is that it deletes the previous sticky message and sends new one. The sticky message's id is stored everytime it is sent so that previous sticky message doesn't trigger new sticky message. It is from my previous bot, it may also have issues and loopholes and bugs and whatever.
+
+IF YOU HAVE A BETTER LOGIC, THEN YOU CAN APPLY THAT. BUT MAKE SURE TO TELL ME WHAT IT IS.
+
+Make it in utility.
+
+Also, this sticky command will have 1 required argument which will consist of "set", "enable", "disable", or "view"
+enable, disable, view will accept no further args (if provided then ignore)
+set will accept any number of arguments ofc.
+
+in case of set: it accepts 1 more optional argument that can be "text", "cv2 OR component" or "embed"
+
+case of text: sets the provided text as sticky message
+it may contain formatting, and the bot has to respect that.
+
+case of cv2/component: accepts json format of components, and sets them as sticky message (bot now sends sticky message in components)
+
+case of embed: accepts json format of embeds, and sets that as sticky message (bot now sends sticky message in embed)
+
+Make helper(s) if needed.
+Use statusMessages.ts if needed
+When the command is used and sticky message is set successfully, the bot sends success message!
+And then the sticky message is sent ofcourse as it has just become sticky.
+
+If the command was disabled, and set arg was used, then it gets enabled. Enable arg enables it too ofcourse. If already enabled or disabled and still enable or disable arg used respectively, then sendInfo "appropriate message for each"
+
+
+example of json of components:
+[
+    {
+        "type": 17,
+        "accent_color": null,
+        "spoiler": false,
+        "components": [
+            {
+                "type": 10,
+                "content": "# Never trust a lizard with a giant spaghetti."
+            },
+            {
+                "type": 14,
+                "divider": true,
+                "spacing": 1
+            },
+            {
+                "type": 10,
+                "content": "They said I couldn't become famous, so I went to the moon and became a alien."
+            }
+        ]
+    }
+]
+
+
+example of json of embeds:
+{
+  "content": null,
+  "embeds": [
+    {
+      "title": "WhY?",
+      "description": "-----",
+      "color": 13963280
+    }
+  ],
+  "attachments": []
+}
+
+
+Now it depends on the user what they provide. I believe there are certain tools that manage this.
+See, IF YOU THINK THAT cv2 and embed can't be possible then leave them.
+Also if no argument provided after set then error.
+If "text", "cv2" or "embed" not provided then it goes with text directly.
+sticky set text hello === sticky set hello
+
+Implement this. Make sticky.md in soul/ to show what you did.

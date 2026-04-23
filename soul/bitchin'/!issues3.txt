@@ -1,0 +1,8 @@
+Got this error on using stop command:
+07:27:30 [COMMAND-ERROR] Error in stop: player.skip(...).catch is not a function
+Fix this. I fear such issues can be with other commands too.
+
+When I have spsearch as default, it showed apple music emoji in now playing. Actually I think that spotify did work, but it showed apple music emoji mistakenly.
+
+When I had apple music search, it showed different duration in added to queue message and different in nowplaying. Why? Is this a fake source display? If it was using the same source then it should've showed one only. I think that it fetched data for added to queue from somewhere else.
+I believe that the source used is genuine and there is no fake display of source. Some AI made these changes to source.

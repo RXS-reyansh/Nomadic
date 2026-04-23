@@ -1,0 +1,29 @@
+In the main help component message, the home button should be: "${emojis.chemtrailsGrey} Home"
+Beside it should be the "{emojis.lustForLife} All commands" button
+
+On clicking home button, it comes to the home page of help component message (the page which is at starting). If already on home, then home button should not be disabled.
+On click all commands button, it edits the component message now:
+same heading as home
+same description as home
+same thumbnail as home
+(separator)
+${emojis.blackButterfly} [category 1 name]
+- `command 1`, `command 2`, ... `command n`
+(separator)
+${emojis.blackButterfly} [category 2 name]
+- `command 1`, `command 2`, ... `command n`
+(separator)
+${emojis.blackButterfly} [category n name]
+- `command 1`, `command 2`, ... `command n`
+(separator)
+invite and server footer same as home
+
+Make sure of the excluded categories array, I may have not added any there yet but I will add afterwards, they will not come anywhere in the help. Not even counted.
+
+------
+On the home page, the prefix should be one that is set in the server, right now I changed the prefix but still it was showing the global prefix. Once the prefix is set in the server, then the bot should show that particular prefix everywhere in that particular server.
+
+In webhook logger command logging, below guild should be one more field:
+Prefix: (prefix used to execute the command) - (Native/Global prefix)
+
+Native or global depends if that server has server-specific prefix or the global prefix was used. This should be in parenthesis.

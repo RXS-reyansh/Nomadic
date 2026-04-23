@@ -1,0 +1,59 @@
+{
+  "name": "hermaca-discord-music-bot",
+  "version": "3.0.0",
+  "description": "A powerful Discord music bot with Spotify integration, lyrics, 24/7 mode, and statistics tracking",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "author": "Reyansh <reyansh.ftw@gmail.com> (https://github.com/RXS-reyansh)",
+  "keywords": [
+    "discord",
+    "music",
+    "bot",
+    "riffy",
+    "lavalink",
+    "spotify",
+    "youtube",
+    "24-7",
+    "music-bot",
+    "discordjs",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RXS-reyansh/Hermaca-Music-Bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RXS-reyansh/Hermaca-Music-Bot/issues"
+  },
+  "homepage": "https://github.com/RXS-reyansh/Hermaca-Music-Bot#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.15.0",
+    "canvas": "^3.2.3",
+    "discord-hybrid-sharding": "^3.0.1",
+    "discord.js": "^14.26.3",
+    "dotenv": "^17.4.2",
+    "genius-lyrics": "^4.4.7",
+    "kazagumo": "^3.4.3",
+    "kazagumo-spotify": "^2.1.1",
+    "mongodb": "^7.1.1",
+    "shoukaku": "^4.3.0",
+    "spotify-web-api-node": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

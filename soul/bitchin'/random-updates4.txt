@@ -1,0 +1,67 @@
+in purge, command message should get deleted BEFORE the purge success message (just before, right now succes message gets deleted before, 0.1 or 0.2 seconds before will work, even immediately before would, but command message before success message) (command message means the message sent by user to execute the command (here, purge command)) (note what command message means in replit.md)
+
+Add message link(s) option in purge command.
+purge link a-message-link
+purge link "link1" "link2" ... "link10" (10 is max, if exceed then similar as purge text)
+If any message not found (bcz bot not in the server message is from), then it deletes the found one and sends success message, and then also sends sendInfo "x messages not found by the provided link (or links if more than 1)."
+If all invalid, then "No messages found by the provided links.", and no success message in this case as nothing was deleted.
+
+------------
+
+add dev-only "note" command, the bot sends the argument text in a dedicated notes channel (provide channel link in config.ts)
+only in prefix! in developer directory.
+note command arguments:
+add
+change
+fix
+remove
+other
+(any one of these is required! otherwise wrong usage)
+
+All of these arguments have another required argument which will be a string (supports \n and raw lines and emoji regex)
+
+So example: (prefix)note add/change/fix/remove/other string (no limit of words)
+
+Now what these arguments do: they send a message using sendNote of statusMessages.ts but with different name at start
+add: ### __To ADD:__
+(string)
+
+change: ### __To CHANGE:__
+(string)
+
+similarly in other two.
+
+but in other: ### __Stupid note:__
+(string)
+
+So sendNote in statusMessages.ts would be:
+### ${emojis.sabrinaTaste} __To (keyword as per argument in uppercase):__
+(string)
+
+[The above in components v2, like other commands like sendInfo, sendError]
+
+[string starts from next line and can be of any number of words and lines as per the provided argument (only add sendError "Too much." if number of characters is 3500+)]
+
+After each message sent by this command, the bot then sends a divider message (normal message, no components, nothing). This divider would also be in config.ts
+
+------------
+
+update last nowplaying message whenever a song gets added in queue (the button has to be updated as per the queue right? :))
+
+-------------
+
+ADD special-purge command (developer only!!)
+in developer directory.
+it accepts atleast 2 required arguments, and then 18 more optional arguments. (all a number)
+syntax: special-purge 2 5
+what it does: it leaves the recent two messages in the channel (excluding the command message sent by user) and deletes the 5 messages before it.
+
+another example: special-purge 4 2 3 1
+working: leave 4 recent message, delete 2 before them, leave 3 messages before that too, delete 1 that was before those 3 left messages.
+(always even number of arguments.)
+sends similar success message but with additional sentence "Left x number of messages" (in the above case, x is 4+3=7)
+
+------------
+
+say command should be in developer directory.
+membercount should be in utility.

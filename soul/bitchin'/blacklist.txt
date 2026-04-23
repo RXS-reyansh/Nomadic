@@ -1,0 +1,57 @@
+Blacklist means everything is disabled for the user who is blacklisted.
+Noprefix user: {prefix}help or /help
+Bot: replies with blacklist message
+Noprefix user: {prefix}hello or hello or literally anything
+Bot: nothing since such command doesn't exist
+
+Blacklisted servers can't have the bot. If a bot joins a server which is blacklisted, it sends blacklist-server message and leaves the server.
+If bot was already in a server before it was blacklisted, then it sends blacklist message in a channel and leaves the server.
+
+There will be a two commands. Only developers can use it (isDeveloper: true).
+Make these in soul/commands/developer
+Blacklist command (alias: bl)
+Blacklist-server command (alias: bl-server and bl-srv)
+
+NO SLASH OF THESE TWO!
+
+Arguments in blacklist command:
+if no argument then wrong usage message
+add <user id or user mention or username>
+remove <user id or user mention or username>
+list (no further arguments, if provided then ignore)
+enable (no further arguments, if provided then ignore)
+disable (no further arguments, if provided then ignore)
+
+Arguments in blacklist-server command:
+if no arguments: then blacklists the server the command was sent in
+add <server id>
+remove <server id>
+list (no further arguments, if provided then ignore)
+enable (no further arguments, if provided then ignore)
+disable (no further arguments, if provided then ignore)
+
+blacklist add - adds a server to blacklist list
+blacklist remove - removes a server from blacklist list
+blacklist list - lists the blacklist list
+blacklist enable - globally enables the blacklist
+blacklist disable - globally disables the blacklist
+
+blacklist-server add - adds a server to blacklist-server list
+blacklist-server remove - removes a server from blacklist-server list
+blacklist-server list - lists the blacklist-server list
+blacklist-server enable - globally enables the blacklist-server
+blacklist-server disable - globally disables the blacklist-server
+
+Use sendSuccess and sendError of statusMessages.ts if necessary.
+Remove previous blacklist data from database.ts. Make fresh new one since we have to store blacklist data in database for user and server.
+
+In case of blacklist list and blacklist-server list, send component message **SIMILAR** to that of noprefix list and noprefix server list. Make this component message in soul/components
+
+Blacklist message: ## ${emojis.SabrinaFU} You have been blacklisted from using this bot for some stupidity you indulged in. Kindly fuck off. (using components V2)
+Blacklist-server message: ## <mention owner of server> This server has been blacklisted from using this bot. For help, kindly refer to:
+- \(username of the first developer) [developers are defined in config.ts]
+- Support server (hyperlink to support server invite link that is in config.ts)
+
+MAKE THESE ABOVE TWO IN statusMessages.ts with appropriate name. Both should use **components V2**!
+
+MAKE HELPERS IF NEEDED!

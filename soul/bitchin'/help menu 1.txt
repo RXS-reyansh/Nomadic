@@ -1,0 +1,28 @@
+
+
+# __Hermaca Haven__ ${emojis.musicHeartNote}
+**A symphony tailored for you.**
+Precision in every rhythm, elegance in every chord—elevating your server's soundscape.
+<add bot's global avatar as thumbnail>
+---(separator)---
+**Hey** <@user id> ${emojis.gothicHeart}
+**Native prefix:** <prefix in server>
+**Total commands:** <number of commands>
+---(separator)---
+${whiteCards} | **[category 1]**
+${whiteCards} | **[category 2]**
+...
+${whiteCards} | **[category n]**
+---(separator)---
+(home button) (all commands list button)
+(dropdown)
+---(separator)---
+-# (support server hyperlink) (invite hyperlink)
+
+NOTES: 
+- DO NOT DESIGN THE (all commands list button) and the dropdown RIGHT NOW. I WILL PROVIDE CONTEXT FOR IT LATER!
+- Support server link should be defined in config.ts
+- Invite link should be made with "https://discord.com/oauth2/authorize?client_id={client if of the bot as in config.ts}&permissions=8&integration_type=0&scope=bot"
+- Afterwards a feature to have different avatar in server will be added, so that's why make sure GLOBAL avatar of the bot is used in thumbnail!
+- Command categories should be extracted by seeing the name of categories in command files that are in soul/commands/ 
+- An array to exclude some categories should be made at the top, because I will not want some categories and their commands to be in help and dropdown later on (like developer category and its commands)

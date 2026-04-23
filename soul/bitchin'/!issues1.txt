@@ -1,0 +1,14 @@
+TypeError: client.db.load24SevenData is not a function
+at execute (file:///home/runner/workspace/dist/soul/events/discord/voiceStateUpdate.js:21:42)
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+This happened either on using play or stop command I guess.
+
+And after restart the bot didn't send nowplaying message on playing a song, basically the server i tried this on had 24/7 on, so it joined the channel and then I used play command and it didn't show nowplaying message. Wait, I think it did, BUT in some other channel, IT SHOULD ALWAYS SEND IN THE CHANNEL THE PLAYER, OR MORE SPECIFICALLY MUSIC WAS STARTED IN.
+
+On stop, it left the channel even when 24/7 enabled.
+24/7 should be the main command name. Users can use "24/7" rest are aliases, name the slash command 24-7
+
+And, it is always playing using youtube, nothing else like spotify and deezer and apple music, why?! I wanted spotify or deezer to be main source. Lavalink serenetia supports it, spotify may have problems.
+
+ATLEAST, EVEN IF IT PLAYS FROM THESE SOURCES, IT SHOULD SHOW PROPER SONG COVER, IT ALWAYS SHOW YOUTUBE MUSIC VIDEOS THUMBNAILS! AND INSTEAD OF ACTUAL ARTISTS, IT SOMETIMES PLAY SONGS FROM SOME LYRICS CHANNEL, EVEN WHEN THE ACTUAL ARTIST HAS IT ON YOUTUBE! Isn't there any API or plugin (free) to extract song cover proper one!

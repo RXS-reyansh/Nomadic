@@ -1,0 +1,21 @@
+Make a new command.
+Name: membercount
+No arguments.
+aliases: memcount, mc
+any user can use
+
+It sends a component v2 message:
+# (server name) Member count
+(separator)
+${emojis.whiteArrow} Total Members: (users + bots)
+${emojis.whiteArrow} Users: (no. of users)
+${emojis.whiteArrow} Bots: (no. of bots)
+(separator)
+-# Requested by <username> at 00:01
+
+Now, listen very carefully, I think that if there is a formatting character like *, `, etc. then it will affect the message. So, look for any formatting character, and add backslash before it. Make a helper for this.
+Use this helper only for guild name right now, maybe in future i provide for more.
+
+Optional argument only for developers: "membercount <server id>"
+It shows member count of that server whose id is provided. (DEVELOPER ONLY)
+If a normal user provides arguments in this command then the membercount works normally. Arguments should be ignored.

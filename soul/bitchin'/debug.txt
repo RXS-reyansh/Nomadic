@@ -1,0 +1,117 @@
+New command.
+name: debug
+arguments: NONE (if provided then ignore)
+what it does: just sends a component message with details, nothing else.
+
+component message should be as per the following:
+# ${emojis.blackBatman} Stats of (botname)
+(bot avatar as thumbnail)
+(separator)
+- General
+- System
+- Cluster & Sharding
+- Latencies
+- Architecture
+- Lavalink
+- Other
+(separator)
+(home button) (all stats button)
+(dropdown with these above things) (each should have emojis.blackBughunter)
+(separator)
+-# Requested by (username) at (time as used in other components) | Use (native/global prefix)developer for info about developer
+
+Home button: emojis.butterflyBlack Home
+All stats button: emojis.butterfliesWhite All stats
+
+Home button disabled when on home
+All stats button disabled when on all stats page
+Dropdown should always show "Browse through (botname)'s stats"
+
+General will have:
+**Servers:** (total servers [across all shard])
+**Users:** (total users [across all shards])
+**Uptime:** (time time since bot has been up [use the time helper, show in seconds])
+**Players active:** (number of players that are active [across all shards])
+**Created at:** Fetch the exact time the bot was created at (Format: Day, 00:00:00 AM/PM, date month-name, year)
+[year should be like: '26 or '09 (these means 2026 and 2009) Make a helper for this] [exclude seconds in time if not possible, or in config.ts define fakeSecondsInDebug (ONLY IF REAL IS NOT POSSIBLE)]
+
+System will have:
+**RAM usage:** (ram used by the bot (not the system)) / total ram (minimum total ram is defined in config.ts)
+**CPU usage:** in % (out of 100) [MAKE SURE THIS IS EXTRACTED PROPERLY! IF NOT THEN FALLBACK TO FAKE USAGE (defined in config.ts)]
+**Threads:**
+Event Loop Delay: Measures if your code is blocking the bot's execution.
+RSS / Heap Used: Actual memory footprint vs. what Node.js has allocated.
+Garbage Collection: (Optional) Time since the last memory cleanup.
+(also add 1-2 more, should be suitable)
+
+Cluster & Sharding will have:
+**Cluster ID:**
+**Shard ID:**
+**Heartbeat:** Latency specific to the current shard.
+(add more, should be suitable)
+
+Latencies will have:
+all same values as ping command, except that shard ID shouldn't be there (as it is in cluster & sharding already)
+
+Architecture will have:
+**Build:** (buildName)
+**Framework:** (if none then remove this heading)
+**Discord.js:** v(version)
+**Node.js:** v(version)
+(add more, should be suitable)
+
+Lavalink will have:
+**Node: (node name)
+**Node status:** Connected / NOT connected
+**Node version:** v(version from config.ts) [v4 should be made 4.0.0, v3 should be 3.0.0]
+**Client:** Riffy v(version)
+(add more, should be suitable)
+
+Other will have:
+Songs played: (number of songs played EVER)
+Commands executed: (number of commands executed EVER)
+Slash commands synced: Yes! or Pending... (based on whether slash commands have been globally synced or not)
+(add more, should be suitable)
+
+ALSO SUGGEST SOME OTHER THINGS THAT CAN BE ADDED!
+LIST ALL THE THINGS THAT YOU ADD ON YOUR OWN!
+MAKE A .txt or .md file in root named "fake" FOR ANYTHING THAT CANNOT BE EXTRACTED AND THUS IS USING FAKE VALUES!
+
+DO NOT FALLBACK TO FAKE VALUES JUST BECAUSE YOU ARE ALLOWED TO, TRY BEST TO PROVIDE REAL VALUES!
+
+When clicked on any in the dropdown, edit message to:
+## {emojis.blackBughunter} Stats - (category name)
+(separator)
+[the bullet points of that category]
+(separator)
+(home) (all stats)
+(dropdown) [should be showing default placeholder]
+(all is same as home page - footer and separator and so and so)
+
+I did say make a helper to extract all values and then pass them to component file.
+Also make a "debug-config.ts" file in /soul/config where some essential things can be configured.
+
+When clicked on all stats, edit to:
+# ${emojis.blackBatman} All stats of (botname)
+(bot avatar as thumbnail)
+(separator)
+General
+[bullet points]
+(separator)
+System
+[bullet points]
+(separator)
+...
+(separator)
+Other
+[bullet points]
+(separator)
+(buttons and dropdown and footer same as home)
+
+THIS COMMAND IS A HUGE TASK, PERFORM VERY CAREFULLY!
+THIS COMMAND IS A HUGE TASK, PERFORM VERY CAREFULLY!
+THIS COMMAND IS A HUGE TASK, PERFORM VERY CAREFULLY!
+
+component should be made in /soul/components
+Use statusMessages.ts exports IF NEEDED (i don't think they are needed)
+Use helpers if needed (for extracting some values that aren't extracted easily)

@@ -1,0 +1,41 @@
+You have to make a Status manager. (i guess in utils it would be alright. or in strucutures? or in any other directory (don't make new one, whichever you think would be suitable, make in that.))
+See, firstly you will make a file with suitable name in soul/config/
+
+That file will contain different values for bots. Firsly it will have have clientID, so that the match is made with clientID from env.
+
+This file would have:
+
+a variable to store time for multi presence/status (this is the certain time we talk about afterwards
+
+bot1 {
+  buildName: (name here instead of config.ts)
+  clientID: (clientID of the bot)
+  name: (just the name of presence or status to show at startup (this will tell which bot's presence/status is being used) [logged by [STATUS] tag)
+  "idle", "dnd", "online", "invisible", OR "mobile"
+  "presence" or "status"
+  "multi" or "single"
+  multi: {
+    1 { if status then what emoji
+    if presence then what type? "Playing", "Listening", "Watching" ... others.
+    if "Streaming" then a valid twitch url should be provided
+    text that will be set as presence or status }
+
+    2 { data in same format } 
+    3 { data in same format }
+    ...
+    n { data in same format }
+  }
+}
+bot2 {
+data in same format
+}
+...
+botn { ... }
+
+Lets say the clientID of the bot I am running is 12345. and botx had that clientID inside it, then botx presence/status would be set.
+
+if multi, then it means the bot will firstly pick the first presence or status and apply it. And after certain time change to 2nd one, then after certain time change to 3rd one ... change to nth one. (this certain time is to be declared beforehead.
+if single, then the first one remains set.
+GIVE PROPER NAMES TO THE VARIABLES OF THE ABOVE VALUES!
+
+Also tell any other ideas for this that you think would be better/suitable.

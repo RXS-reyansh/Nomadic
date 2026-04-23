@@ -1,0 +1,9 @@
+When someone disconnects the bot, and the bot had 24/7 enabled, then the bot should join the 24/7 channel.
+Also when someone uses leave command, the bot joins 24/7 channel.
+ONLY IF 24/7 is enabled. The bot has to join 24/7 channel.
+
+Any source other than youtube is JUST NOT WORKING. It always go to youtube. See, the node supports many sources like deezer, spotify, apple music, and even more. And I have seen other bots use those sources too!!! Just find the cause and fix this. The bot should play from the default source that is set. In future, I will even add source command to set different default sources for particular servers/users (not right now!).
+
+MAKE THE DIFFERENT SOURCES WORK. LOOK FOR DIFFERENT PLUGINS IF NEEDED.
+
+At last, tell me which is the BEST lavalink client right now other than kazagumo and riffy. Actually send a list of famous ones and then which is the best one for TS (JS).

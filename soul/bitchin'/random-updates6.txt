@@ -1,0 +1,41 @@
+FIX: 
+
+Heartbeat and WS Ping shows "N/A"
+
+The displayStatus appears late
+The mobile icon in displayStatus doesn't work atm :CRYING: 
+
+And in console, there doesn't have to be a log [STATUS] everytime status rotates in multi-mode
++ in ⁠ready-log the bot should also tell presence/status name (Main, BETA, etc.)!
+
+The raw new lines don't work! Neither in say, nor in sticky, nor in note.
+hello1\nhello2 should be equal to:
+hello1
+hello2
+Both should be treated as next line.
+
+The bot doesn't send sticky after its own message (that is not sticky)
+
+Add image support in note command! Needed fr! (just like afk)
+
+special-purge was not deleting some messages, idk why, there were 2 messages that it just didn't delete, i then deleted those messages with purge link, but why those two didn't get deleted. Can't tell reason, just look up code for any loopholes or incorrectedness ^-^
+
+------------------
+
+CHANGE:
+
+separate multi-status and multi-presence in botInstances.ts and make statusManager fetch so too
+
+don't show whole .json code for cv2 and embeds in sticky view (looks stupid)
+
+-------------------
+
+ADD:
+
+Multi-displayStatus (is this even possible?)
+
+Purge-till command, what it does is that it accepts an argument message_id OR message link, and looks for that message in the whole channel. when it finds, it asks confirmation to delete n number of messages. these messages are the messages that were sent after that particular message. I hope you get the logic. Confirmation similar as purge and server-purge.
+
+-------------------
+
+Implement all this!

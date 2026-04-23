@@ -1,0 +1,82 @@
+In webhook logger, right now it is the bot which is sending messags, IT SHOULD BE THE WEBHOOK ONLY. This was done because emojis weren't visible.  Find why emojis aren't visible in the embeds. The bot can surely access those emojis but still emojis aren't visible. Don't add fallback emojis. Just find the cause.\
+
+In both purge and serverpurge, text arg, if more than 10 texts are provided then error bcz MAX is 10
+
+In nop server and related commands, if already enabled or disabled, then sendInfo "Already... (appropriate message for each of them according to context)"
+
+In ping and debug, sometimes WS ping and heartbeat are shown -1 ms, why? It can't be in negative. Find the cause and fix. It should not show irrelevant values like this.
+And in debug, system section, the following heading aren't bolded. Bold these:
+RSS:
+Heap Used:
+External Memory:
+Active Handles:
+Active Requests:
+
+Also check if the following debug values are fine or not:
+General
+Servers: 5
+Users: 187
+Channels: 119
+Uptime: 8s
+Players active: 0
+Created at: Tuesday, 10:39:55 PM, 14 April, '26
+System
+RAM usage: 158.6 MB / 64304.5 MB
+CPU usage: 17.4%
+Threads:
+Event Loop Delay: 1.65ms
+RSS: 159 MB
+Heap Used: 41 MB
+External Memory: 21 MB
+Active Handles: 10
+Active Requests: 0
+Cluster & Sharding
+Cluster ID: 0
+Shard ID: 0
+Heartbeat: -1ms
+Total Clusters: 1
+Total Shards: 1
+Process ID: 722
+Latencies
+API Latency: 446ms
+Websocket Ping: -1ms
+Database Latency: 5ms
+Lavalink Latency: 269ms
+Architecture
+Build: Nomadic
+Framework: Discord.js
+Discord.js: v14.26.3
+Node.js: v20.20.0
+OS: linux (x64)
+Package version: v3.0.0
+Lavalink
+Node: lavalinkv4.serenetia.com
+Node status: Connected
+Node version: v0.0.0 (WHAT? Its v4)
+REST API: v4 (what is this even? please explain.)
+Client: Riffy v1.0.12
+Active players: 0
+Other
+Songs played: 0
+Commands executed: 12
+Slash commands synced: Yes!
+Noprefix users: 0
+Blacklisted users: 0
+Blacklisted servers: 0
+
+
+----
+
+Tell me, when will the cluster and shard get to 1. I.e. what happens so that they increase?
+
+In debug, home and all stats page,
+below title and before separator should be:
+Database on **MongoDB Atlas**
+Powered by **(hosting service name)** [I GUESS THIS CAN BE EXTRACTED SOMEHOW, SINCE I USE DIFFERENT HOSTING SERVICES TIME TO TIME, SOMETIMES LOCAL MACHINE, SOMETIMES EVEN REPLIT]
+
+----
+
+WHEREVER THE TIME IS MENTIONED IN FOOTER LIKE: REQUESTED BY <username> at <time>, also add UTC after that. So it will be: 00:00 UTC
+And this time always gets updated when interacting with message, this shouldn't happen, it should note the time the message was first sent.
+
+---------
