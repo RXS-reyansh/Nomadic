@@ -36,10 +36,10 @@ export async function loadPrefixCommands(client: HermacaClient): Promise<void> {
 
   try {
     await loadCommandsRecursive(client, commandsPath, stats);
-    logger.success('COMMANDS', `Loaded ${stats.loaded} prefix commands (${stats.skipped} skipped)`);
+    logger.info('COMMANDS LOADER', `Loaded ${stats.loaded} prefix commands (${stats.skipped} skipped)`);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      logger.error('COMMANDS', `Failed to load prefix commands: ${error}`);
+      logger.error('COMMANDS LOADER', `Failed to load prefix commands: ${error}`);
     }
   }
 }
@@ -63,13 +63,13 @@ async function loadCommandsRecursive(
 
         // Validate required fields
         if (!command.options?.name || !command.options?.description || !command.options?.category || command.options?.usage === undefined) {
-          logger.warn('COMMANDS', `Skipping ${file.name}: missing required options`);
+          logger.warn('COMMANDS LOADER', `Skipping ${file.name}: missing required options`);
           stats.skipped++;
           continue;
         }
 
         if (typeof command.prefixExecute !== 'function') {
-          logger.warn('COMMANDS', `Skipping ${file.name}: prefixExecute is not a function`);
+          logger.warn('COMMANDS LOADER', `Skipping ${file.name}: prefixExecute is not a function`);
           stats.skipped++;
           continue;
         }
@@ -85,9 +85,9 @@ async function loadCommandsRecursive(
           }
         }
 
-        logger.debug('COMMANDS', `Loaded prefix: ${command.options.category}/${commandName}`);
+        logger.debug('COMMANDS LOADER', `Loaded prefix: ${command.options.category}/${commandName}`);
       } catch (error) {
-        logger.error('COMMANDS', `Failed to load ${file.name}: ${error}`);
+        logger.error('COMMANDS LOADER', `Failed to load ${file.name}: ${error}`);
         stats.skipped++;
       }
     }

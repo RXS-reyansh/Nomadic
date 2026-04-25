@@ -2,6 +2,7 @@ import logger from '../../console/logger.js';
 import webhookLogger from '../../utils/webhookLogger.js';
 import { blacklistedServer } from '../../components/statusMessages.js';
 import { botName } from '../../config.js';
+import { ensureGuildInvite } from '../../helpers/inviteCache.js';
 
 export const name = 'guildCreate';
 export const type = 'discord';
@@ -25,6 +26,11 @@ export async function execute(_client: any, guild: any): Promise<void> {
   if (_client.db?.registerGuild) {
     await _client.db.registerGuild(guild.id).catch(() => {});
   }
+
+  // Cache an invite code for the new guild (used by the [SERVER LIST] block
+  // and `/invite-guild`). Silently falls back to "N/A" downstream if the bot
+  // lacks `CreateInstantInvite` perms.
+  ensureGuildInvite(_client, guild).catch(() => {});
 
   // Send welcome message if possible
   const channel = guild.channels.cache.find((ch: any) =>

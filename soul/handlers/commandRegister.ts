@@ -33,10 +33,12 @@ export async function registerSlashCommands(client: HermacaClient): Promise<void
     return;
   }
 
+  logger.info('SLASH', `ℹ️ Registering slash commands globally...`);
+
   try {
     const route = Routes.applicationCommands(client.application.id);
     await client.rest.put(route, { body: builders.map(b => b.toJSON()) });
-    logger.success('SLASH', `Registered ${builders.length} global slash commands`);
+    logger.info('SLASH', `Registered ${builders.length} global slash commands`);
     (client as any).slashCommandsSynced = true;
   } catch (error) {
     logger.error('SLASH', `Failed to register slash commands: ${error}`);

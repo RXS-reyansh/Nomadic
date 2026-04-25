@@ -1,4 +1,4 @@
-// aether/console/logger.ts
+// soul/console/logger.ts
 import colorConfig from './color-config.js';
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG' | 'SUCCESS';
@@ -36,16 +36,28 @@ export function setLogLevel(level: LogLevel): void {
   logLevel = level;
 }
 
+// Tags allowed to keep emitting after the boot block has fully completed.
+// Everything else falls silent (except errors) once `setBotReady(true)` is
+// called at the end of bootstrap.
+const allowedAfterReady = new Set<string>([
+  'LYRICS',
+  'DEVELOPER',
+  'DEVELOPER-LOG',
+  'ERROR',
+  'GUILD',
+  'NODE',
+  'WEBHOOK',
+  '24/7',
+  'LOADING DATA - 24/7',
+]);
+
 // Core log function
 export function log(tag: string, message: string, isError: boolean = false): void {
-  // After bot is ready, suppress all non-error logs unless explicitly allowed
-  const allowedAfterReady = ['LYRICS', 'DEVELOPER', 'DEVELOPER-LOG', 'ERROR'];
   const baseTag = tag.replace(/-ERROR$/, '');
-  if (botReady && !isError && !allowedAfterReady.includes(baseTag) && !allowedAfterReady.includes(tag)) {
+  if (botReady && !isError && !allowedAfterReady.has(baseTag) && !allowedAfterReady.has(tag)) {
     return;
   }
 
-  // Build final tag with optional -ERROR suffix
   const finalTag = isError && !tag.endsWith('-ERROR') ? `${tag}-ERROR` : tag;
   const baseTagForColor = finalTag.replace(/-ERROR$/, '');
   const colorHex = colorConfig[baseTagForColor] || colorConfig.DEFAULT;
@@ -58,19 +70,28 @@ export function log(tag: string, message: string, isError: boolean = false): voi
 // Convenience methods
 export const logger = {
   info: (tag: string, message: string) => log(tag, message, false),
-  warn: (tag: string, message: string) => log(tag, message, false), // Could add WARN level color
+  warn: (tag: string, message: string) => log(tag, message, false),
   error: (tag: string, message: string) => log(tag, message, true),
   debug: (tag: string, message: string) => {
     if (logLevel === 'DEBUG') log(tag, message, false);
   },
+  /**
+   * Success uses the TAG's own colour from color-config (not a single global
+   * SUCCESS green). This keeps the boot block colour-coherent — every line
+   * sharing a tag also shares a colour.
+   */
   success: (tag: string, message: string) => {
-    const colorHex = colorConfig.SUCCESS;
+    if (botReady && !allowedAfterReady.has(tag)) return;
+    const colorHex = colorConfig[tag] || colorConfig.SUCCESS;
     const coloredTag = colorize(`[${tag}]`, colorHex);
     const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
     console.log(`${timestamp} ${coloredTag} ${message}`);
   },
   developerLog: (message: string) => log('DEVELOPER-LOG', message, false),
-  line: () => console.log('─'.repeat(60)),
+  /**
+   * Section divider — printed between every boot block.
+   */
+  line: () => console.log('━─━────༺༻────━─━━─━────༺༻────━─━'),
 };
 
 export default logger;

@@ -1,4 +1,9 @@
 // soul/structures/HermacaClient.ts
+//
+// Discord client wrapper. Construction is intentionally **silent** (no console
+// output) so the boot block in `soul/hermaca.ts` can render lines in the exact
+// order the startup spec defines. Each subsystem (database, kazagumo) has its
+// own explicit `init*()` method so bootstrap can call them in spec order.
 import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
 import { ClusterClient } from "discord-hybrid-sharding";
 import { Kazagumo } from "kazagumo";
@@ -13,9 +18,6 @@ import {
 } from "../config/botInstances.js";
 import { StatusManager } from "./StatusManager.js";
 
-// Compute the matched instance once at module load — the constructor needs it
-// before super() can be called, and a static helper keeps that constructor
-// (which can't reference `this` before super) clean.
 function buildClientOptions() {
   const matched = findBotInstanceByClientId(process.env.DISCORD_CLIENT_ID);
 
@@ -34,12 +36,6 @@ function buildClientOptions() {
   };
 
   if (matched && instanceUsesMobile(matched) && firstDisplayStatus(matched) === 'mobile') {
-    // The IDENTIFY browser/os/device controls the device-icon next to the bot.
-    // discord.js v14 ignores `options.ws.properties` (the new `@discordjs/ws`
-    // hardcodes its defaults). The only reliable hook is `buildStrategy`,
-    // which lets us mutate `manager.options.identifyProperties` BEFORE the
-    // sharding strategy is constructed — at which point the shard reads it
-    // and forwards it in the IDENTIFY payload.
     baseOpts.ws.buildStrategy = (manager: any) => {
       manager.options.identifyProperties = {
         browser: 'Discord Android',
@@ -50,16 +46,6 @@ function buildClientOptions() {
     };
   }
 
-  // Apply initial presence at IDENTIFY so the status appears the moment the
-  // gateway is up — eliminates the "presence appears late" delay of waiting
-  // for the ready event.
-  //
-  // IMPORTANT: discord.js's `Client#login` runs `options.presence` through
-  // `ClientPresence._parse`, which strips unknown activity fields including
-  // `emoji` and `state`. To preserve custom-emoji support and the proper
-  // ActivityType.Custom shape, we set `options.ws.presence` DIRECTLY to a
-  // raw gateway-shaped dict and leave `options.presence` undefined so login
-  // doesn't overwrite it.
   const initial = StatusManager.buildInitialPresenceFor(matched);
   if (initial) {
     baseOpts.ws.presence = {
@@ -80,9 +66,6 @@ export class HermacaClient extends Client {
   public slashCommands: Collection<string, any>;
   public aliases: Collection<string, string>;
   public cooldowns: Collection<string, number>;
-  // Sticky message in-memory cache. Key is `${guildId}-${channelId}`. Value
-  // holds the most-recently-sent sticky message ID so messageCreate can skip
-  // re-sending when the incoming message IS the bot's own sticky (loop guard).
   public stickyMessages: Map<string, string> = new Map();
   public kazagumo!: Kazagumo;
   public db: any;
@@ -90,41 +73,53 @@ export class HermacaClient extends Client {
   public logger = logger;
   public webhookLogger: any;
   public statusManager!: StatusManager;
+  public matchedInstance: ReturnType<typeof findBotInstanceByClientId>;
+
+  /**
+   * Set to `true` by bootstrap once the entire boot block has finished
+   * printing. After this, runtime-emitted node-reconnect logs in
+   * `soul/events/node/nodeConnect.ts` are allowed through.
+   */
+  public bootCompleted = false;
 
   constructor() {
     const { matched, baseOpts } = buildClientOptions();
     super(baseOpts);
 
+    this.matchedInstance = matched;
     this.cluster = new ClusterClient(this as any);
     this.commands = new Collection();
     this.slashCommands = new Collection();
     this.aliases = new Collection();
     this.cooldowns = new Collection();
-
-    if (matched && instanceUsesMobile(matched) && firstDisplayStatus(matched) === 'mobile') {
-      logger.info('STATUS', `Mobile device indicator enabled for clientId ${matched.clientId}.`);
-    }
+    // NOTE: no console output here — see file header.
   }
 
-  async loadModules(): Promise<void> {
-    logger.info("LOADER", "Loading modules...");
-
-    await this.loadDatabase();
-    await this.loadMusic();
-    await this.loadEvents();
-    await this.loadHelpers();
-    await this.loadCommands();
-
-    logger.success("LOADER", "All modules loaded");
+  /** Returns true if this instance is configured to identify as mobile. */
+  usesMobileIndicator(): boolean {
+    return !!(
+      this.matchedInstance &&
+      instanceUsesMobile(this.matchedInstance) &&
+      firstDisplayStatus(this.matchedInstance) === 'mobile'
+    );
   }
 
-  private async loadDatabase(): Promise<void> {
+  /**
+   * Initialise the database connection. Emits the four `[DATABASE] 🪐 ...`
+   * lines from the boot spec. Must be called by bootstrap at the right point
+   * in the boot order.
+   */
+  async initDatabase(buildName: string): Promise<void> {
     const { initDatabase } = await import("../database/database.js");
-    this.db = await initDatabase(this.logger);
-    logger.success("DATABASE", "Connected");
+    this.db = await initDatabase(this.logger, buildName);
   }
 
-  private async loadMusic(): Promise<void> {
+  /**
+   * Construct Kazagumo / Shoukaku and immediately begin connecting to all
+   * configured Lavalink nodes. Stays silent — bootstrap prints the
+   * `[LAVALINK]` and `[NODE]` lines itself in spec order.
+   */
+  initKazagumo(): void {
     this.kazagumo = new Kazagumo(
       {
         defaultSearchEngine: "youtube",
@@ -148,25 +143,5 @@ export class HermacaClient extends Client {
         restTimeout: 60,
       },
     );
-
-    logger.success("LAVALINK", "Kazagumo music system initialized");
-  }
-
-  private async loadEvents(): Promise<void> {
-    const { loadAllEvents } = await import("../handlers/eventLoader.js");
-    await loadAllEvents(this);
-  }
-
-  private async loadHelpers(): Promise<void> {
-    const { loadHelpers } = await import("../handlers/helperLoader.js");
-    this.helpers = await loadHelpers(this);
-  }
-
-  private async loadCommands(): Promise<void> {
-    const { loadPrefixCommands } = await import("../handlers/commandLoader.js");
-    await loadPrefixCommands(this);
-
-    const { loadSlashCommands } = await import("../handlers/slashLoader.js");
-    await loadSlashCommands(this);
   }
 }

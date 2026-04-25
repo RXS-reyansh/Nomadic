@@ -37,10 +37,10 @@ export async function loadSlashCommands(client: HermacaClient): Promise<void> {
 
   try {
     await loadSlashRecursive(client, commandsPath, stats);
-    logger.success('SLASH', `Loaded ${stats.loaded} slash executables (${stats.skipped} skipped)`);
+    logger.info('SLASH LOADER', `Loaded ${stats.loaded} slash executables (${stats.skipped} skipped)`);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      logger.error('SLASH', `Failed to load slash commands: ${error}`);
+      logger.error('SLASH LOADER', `Failed to load slash commands: ${error}`);
     }
   }
 }
@@ -63,7 +63,7 @@ async function loadSlashRecursive(
         const command: SlashCommandModule = module.default || module;
 
         if (!command.options?.name) {
-          logger.warn('SLASH', `Skipping ${file.name}: missing options.name`);
+          logger.warn('SLASH LOADER', `Skipping ${file.name}: missing options.name`);
           stats.skipped++;
           continue;
         }
@@ -80,9 +80,9 @@ async function loadSlashRecursive(
         });
         stats.loaded++;
 
-        logger.debug('SLASH', `Loaded executable: ${command.options.category}/${commandName}`);
+        logger.debug('SLASH LOADER', `Loaded executable: ${command.options.category}/${commandName}`);
       } catch (error) {
-        logger.error('SLASH', `Failed to load ${file.name}: ${error}`);
+        logger.error('SLASH LOADER', `Failed to load ${file.name}: ${error}`);
         stats.skipped++;
       }
     }

@@ -127,18 +127,59 @@ export class Database {
   // Connection Management
   // --------------------------------------------------------------------
 
+  /**
+   * Lazy connect helper used by every individual DB method. Stays silent —
+   * the boot-block init logs are emitted by `initWithLogs` instead so they
+   * appear in the right place in the boot block.
+   */
   async connect(): Promise<boolean> {
     if (this.connected) return true;
     try {
       await this.client.connect();
       this.db = this.client.db(this.dbName);
       this.connected = true;
-      this.logSuccess('DATABASE', `Connected (bot: ${this.botId || 'default'})`);
       return true;
     } catch (error) {
       this.log('DATABASE', `Connection failed: ${(error as Error).message}`, true);
       return false;
     }
+  }
+
+  /**
+   * Boot-block initialiser. Emits the four `[DATABASE] 🪐 ...` lines from the
+   * startup spec in the correct order. Idempotent — safe to call once per boot.
+   */
+  async initWithLogs(buildName: string): Promise<void> {
+    const usePrefix = !!this.botId;
+    const ident = this.botId || 'default';
+    this.logger?.info(
+      'DATABASE',
+      `🪐 Database initialized for bot: ${ident} (Using ${usePrefix ? 'PREFIXED' : 'DEFAULT'} Collection)`,
+    );
+
+    if (!this.connected) {
+      try {
+        await this.client.connect();
+        this.db = this.client.db(this.dbName);
+        this.connected = true;
+      } catch (error) {
+        this.log('DATABASE', `Connection failed: ${(error as Error).message}`, true);
+        return;
+      }
+    }
+    this.logger?.info('DATABASE', `🪐 Connected to ${this.dbName} for bot: ${buildName}`);
+
+    try {
+      await this.collection('lyrics_cache').createIndex(
+        { timestamp: 1 },
+        { expireAfterSeconds: 2592000 },
+      );
+      this.logger?.info('DATABASE', `🪐 Lyrics cache TTL index ensured`);
+    } catch (error) {
+      this.logWarn('DATABASE', `Lyrics index error: ${(error as Error).message}`);
+    }
+
+    this.logger?.info('DATABASE', `🪐 Database connected`);
   }
 
   async close(): Promise<void> {
@@ -422,7 +463,14 @@ export class Database {
     await this.connect();
     const ids: string[] = await this.collection<AFKEntry>('afk_statuses').distinct('user_id');
     this.afkCache = new Set(ids);
-    this.logSuccess('DATABASE', `AFK cache populated: ${this.afkCache.size} active user(s)`);
+  }
+
+  /** Silent variant for the boot-block load-data section. Returns the count. */
+  async populateAfkCacheSilent(): Promise<number> {
+    await this.connect();
+    const ids: string[] = await this.collection<AFKEntry>('afk_statuses').distinct('user_id');
+    this.afkCache = new Set(ids);
+    return this.afkCache.size;
   }
 
   async getAFK(userId: string, guildId?: string): Promise<AFKEntry | null> {
@@ -535,16 +583,46 @@ export class Database {
   }
 
   async ensureLyricsIndex(): Promise<void> {
+    // Now folded into initWithLogs(); kept as a no-op shim for any callers
+    // that may still invoke it directly.
     await this.connect();
-    try {
-      await this.collection('lyrics_cache').createIndex(
-        { timestamp: 1 },
-        { expireAfterSeconds: 2592000 }
-      );
-      this.logSuccess('DATABASE', 'Lyrics cache TTL index ensured');
-    } catch (error) {
-      this.logWarn('DATABASE', `Lyrics index error: ${(error as Error).message}`);
-    }
+  }
+
+  // --------------------------------------------------------------------
+  // Guild Invite Cache
+  // --------------------------------------------------------------------
+  // Schema (collection: `guild_invites`):
+  //   { guild_id: string, code: string, updated_at: Date }
+  // Used for [SERVER LIST] block and the `/invite-guild` admin tool.
+  // Codes are validated at boot — invalid ones are recreated, missing ones
+  // surface as "N/A" if the bot lacks `CreateInstantInvite` perms.
+
+  async getGuildInvite(guildId: string): Promise<string | null> {
+    await this.connect();
+    const doc = await this.collection<{ guild_id: string; code: string }>('guild_invites')
+      .findOne({ guild_id: guildId });
+    return doc?.code ?? null;
+  }
+
+  async setGuildInvite(guildId: string, code: string): Promise<void> {
+    await this.connect();
+    await this.collection('guild_invites').updateOne(
+      { guild_id: guildId },
+      { $set: { guild_id: guildId, code, updated_at: new Date() } },
+      { upsert: true },
+    );
+  }
+
+  async removeGuildInvite(guildId: string): Promise<void> {
+    await this.connect();
+    await this.collection('guild_invites').deleteOne({ guild_id: guildId });
+  }
+
+  async getAllGuildInvites(): Promise<Map<string, string>> {
+    await this.connect();
+    const docs = await this.collection<{ guild_id: string; code: string }>('guild_invites')
+      .find().toArray();
+    return new Map(docs.map(d => [d.guild_id, d.code]));
   }
 
   // --------------------------------------------------------------------
@@ -760,10 +838,15 @@ export class Database {
 
 export const db = new Database();
 
-export async function initDatabase(logger: Logger): Promise<Database> {
+/**
+ * Boot-block database initialiser. Performs the connect, ensures TTL indexes,
+ * and emits the four `[DATABASE] 🪐 ...` lines required by the startup spec.
+ * The cached-data load (AFK / volumes / prefixes / stickies) is handled
+ * separately by bootstrap so each line goes under the proper
+ * `[DATABASE - LOADING DATA]` tag.
+ */
+export async function initDatabase(logger: Logger, buildName: string): Promise<Database> {
   db.setLogger(logger);
-  await db.connect();
-  await db.ensureLyricsIndex();
-  await db.initAfkCache();
+  await db.initWithLogs(buildName);
   return db;
 }

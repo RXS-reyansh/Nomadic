@@ -19,57 +19,61 @@ interface IpInfoResponse {
 
 /**
  * Fetches the public IP of the hosting machine from ipinfo.io and logs it once
- * at startup. Resolves the provider name by:
- *  1. If config.hardcodeHostingService is non-empty, use that.
- *  2. Otherwise, match the fetched IP against soul/config/hostingServices.ts entries.
- *  3. If no match, fall back to "Local Host".
+ * at startup. Provider resolution:
+ *  1. If `config.hardcodeHostingService` is non-empty, use that name (and still
+ *     log the IP if the lookup succeeds — pure cosmetic, the matching is
+ *     skipped).
+ *  2. Otherwise match the fetched IP against `soul/config/hostingServices.ts`.
+ *  3. Fall back to "Local Host".
  *
- * Call this once during startup — the guard ensures it only logs once even if
- * called multiple times.
+ * Output format (boot-block spec):
+ *   [HOST] 🌐 Hosting service IP: <ip>/32
+ *   [HOST] 🌐 Hosting service hardcoded as: <name>     ← only if hardcoded
+ *
+ * The /32 mask is hardcoded per spec.
  */
 export async function getHostingServiceIP(): Promise<void> {
   if (hasLogged) return;
   hasLogged = true;
 
-  // If a hosting service name is hardcoded in config, use it without fetching IP
-  if (config.hardcodeHostingService && config.hardcodeHostingService.trim().length > 0) {
-    cachedProviderName = config.hardcodeHostingService.trim();
-    logger.info('HOST', `Hosting service hardcoded as: ${cachedProviderName}`);
-    return;
-  }
-
+  let ip: string | null = null;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-
     const response = await fetch('https://ipinfo.io/json', {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     });
     clearTimeout(timeout);
-
-    if (!response.ok) {
-      logger.warn('HOST', `Could not determine hosting IP (HTTP ${response.status}).`);
-      return;
+    if (response.ok) {
+      const data = (await response.json()) as IpInfoResponse;
+      ip = data.ip ?? null;
     }
+  } catch {
+    ip = null;
+  }
 
-    const data = (await response.json()) as IpInfoResponse;
-    const ip = data.ip ?? 'unknown';
+  if (ip) {
+    logger.info('HOST', `🌐 Hosting service IP: ${ip}/32`);
+  } else {
+    logger.warn('HOST', `🌐 Hosting service IP: unknown/32`);
+  }
 
-    // Check fetched IP against the configured list
+  // Resolve display name
+  if (config.hardcodeHostingService && config.hardcodeHostingService.trim().length > 0) {
+    cachedProviderName = config.hardcodeHostingService.trim();
+    logger.info('HOST', `🌐 Hosting service hardcoded as: ${cachedProviderName}`);
+    return;
+  }
+
+  if (ip) {
     const matched = hostingServices.find(entry => entry.ip === ip);
     if (matched) {
       cachedProviderName = matched.name;
-      logger.info('HOST', `${matched.name} — IP: ${ip}`);
+      logger.info('HOST', `🌐 Hosting service detected: ${matched.name}`);
     } else {
       cachedProviderName = 'Local Host';
-      logger.info('HOST', `No match for IP ${ip} in hostingServices.ts — using "Local Host"`);
-    }
-  } catch (err: any) {
-    if (err?.name === 'AbortError') {
-      logger.warn('HOST', 'Could not determine hosting IP (request timed out).');
-    } else {
-      logger.warn('HOST', `Could not determine hosting IP: ${(err as Error).message}`);
+      logger.info('HOST', `🌐 No match for IP — using "Local Host"`);
     }
   }
 }

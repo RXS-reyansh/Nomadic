@@ -99,13 +99,13 @@ function buildNavRow(page: string, disabled = false): ActionRowBuilder<ButtonBui
       .setLabel('Home')
       .setStyle(ButtonStyle.Secondary)
       .setCustomId('debug:home')
-      .setEmoji({ id: '1495280509948006410', name: 'butterflyBlack', animated: true })
+      .setEmoji({ id: '1495280146658361426', name: 'butterflyLightBlue', animated: true })
       .setDisabled(disabled || page === 'home'),
     new ButtonBuilder()
       .setLabel('All stats')
       .setStyle(ButtonStyle.Secondary)
       .setCustomId('debug:allstats')
-      .setEmoji({ id: '1494789956034629734', name: 'butterflyWhite', animated: true })
+      .setEmoji({ id: '1495280188957917266', name: 'butterflyPink', animated: true })
       .setDisabled(disabled || page === 'allstats'),
   );
 }
@@ -164,7 +164,7 @@ export function buildDebugHomePayload(
   const avatarUrl: string = (client as any)?.user?.displayAvatarURL?.({ forceStatic: false }) ?? '';
 
   const categoryList = DEBUG_CATEGORIES
-    .map(cat => `${emojis.blackBughunter} **${cat.label}**`)
+    .map(cat => `${emojis.whiteArrow2}**${cat.label}**`)
     .join('\n');
 
   // Info lines are placed INSIDE the section (left of thumbnail) to avoid
@@ -221,7 +221,7 @@ export function buildDebugCategoryPayload(
 
   const container = new ContainerBuilder()
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`## ${emojis.blackBughunter} Stats - ${displayName}`),
+      new TextDisplayBuilder().setContent(`## ${emojis.blackCards} Stats - ${displayName}`),
     )
     .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines))

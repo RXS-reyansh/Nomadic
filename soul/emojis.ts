@@ -98,6 +98,7 @@ export const emojis = {
     musicHeartNote: "<:MusicHeartNote:1494636552763084800>",
     gothicHeart: "<:GothicHeart:1494636034032533584>",
     whiteCards: "<:WhiteCards:1494636401667346482>",
+    blackCards: "<:blackCards:1494806795217014887>",
     SabrinaFU: "<a:sabrinaFuckYou:1495147233870479361>",
     sabrinaTaste: "<:sabrinaTaste:1495276734113775728>",
     AFK: "<:AFK:1495302470979682325>",
@@ -108,4 +109,5 @@ export const emojis = {
     readTheFuckingRules: "<:readTheFuckingRules:1495276737825738763>",
     blackbatman: "<:blackBatman:1494806627860222144>",
     blackBughunter: "<:blackBughunter:1495274694851694602>",
+    whiteArrow2: "<:whiteArrow2:1495276732482064545>",
 };

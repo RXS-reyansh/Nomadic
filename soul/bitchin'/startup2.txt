@@ -1,0 +1,20 @@
+Server list should be like:
+[SERVER LIST]
+Found n guilds
+[1/n] (guild name 1) | Members: (total members including bots) |  Invite link: (invite link of the server)
+[2/n] (guild name 2) | Members: (total members including bots) |  Invite link: (invite link of the server)
+...
+[n/n] (guild name n) | Members: (total members including bots) |  Invite link: (invite link of the server)
+
+
+And at the last (after [YAY!]) 24/7 should be:
+
+[LOADING DATA - 24/7]
+✨ Found n guilds with 24/7 enabled
+[1/n] Auto-connected to (voice channel name) in (guild 1)
+[2/n] Auto-connected to (voice channel name) in (guild 2)
+...
+[n/n] Auto-connected to (voice channel name) in (guild n)
+✨ 24/7 auto-connect completed
+
+(remove 24/7 before that as you aren't able to achieve so)

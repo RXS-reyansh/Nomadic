@@ -129,7 +129,6 @@ export class StatusManager {
       return;
     }
     const inst = this.instance;
-    logger.info('STATUS', `Using "${inst.name}" instance config (build: ${inst.buildName})`);
 
     if (inst.mode === 'status' && this.statusList.length === 0) {
       logger.warn?.('STATUS', `Instance "${inst.name}" mode=status but has no statusEntries.`);
@@ -161,13 +160,6 @@ export class StatusManager {
         this.applyCurrent(false);
       }, ROTATION_INTERVAL_MS));
     }
-
-    if (this.timers.length) {
-      logger.info(
-        'STATUS',
-        `Rotating ${this.timers.length} channel(s) every ${ROTATION_INTERVAL_MS / 1000}s.`,
-      );
-    }
   }
 
   stop(): void {
@@ -184,17 +176,12 @@ export class StatusManager {
     const status = toGatewayStatus(pill);
 
     let activities: any[] = [];
-    let flavour = '';
 
     if (inst.mode === 'status') {
       const e = this.statusList[this.statusIdx];
       if (e) {
         const text = interpolate(this.client, e.text);
-        // For ActivityType.Custom, Discord shows the `state` field on the
-        // user popup. The `name` field is required by gateway validation
-        // but is largely ignored visually — we set both to the same thing.
         activities = [{ name: text, type: ActivityType.Custom, state: text }];
-        flavour = `status "${text}"`;
       }
     } else {
       const e = this.presenceList[this.presenceIdx];
@@ -211,7 +198,6 @@ export class StatusManager {
           }
         }
         activities = [activity];
-        flavour = `${kind} "${text}"`;
       }
     }
 
@@ -233,7 +219,7 @@ export class StatusManager {
     // Only log on the very first apply — silence rotation chatter.
     if (announce && !this.initialApplied) {
       this.initialApplied = true;
-      logger.success('STATUS', `Applied ${flavour} (status=${pill}).`);
+      logger.success('STATUS', `Applied status "${inst.name}" (displayStatus=${pill})`);
     }
   }
 }

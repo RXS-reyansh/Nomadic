@@ -4,7 +4,7 @@ import logger from '../console/logger.js';
 import { updateNowPlayingMessage, disableNowPlayingButtons, clearPlayerState } from '../helpers/nowPlayingManager.js';
 
 export async function loadHelpers(client: HermacaClient): Promise<Record<string, any>> {
-  logger.info('HELPERS', 'Loading helper functions...');
+  logger.info('HELPERS LOADER', 'Loading helper functions...');
 
   const helpers = {
     checkCooldown: (commandName: string, userId: string, _cooldownSeconds: number): string | null => {
@@ -122,6 +122,7 @@ export async function loadHelpers(client: HermacaClient): Promise<Record<string,
     },
   };
 
-  logger.success('HELPERS', 'Helpers loaded');
+  const helperCount = Object.keys(helpers).length;
+  logger.info('HELPERS LOADER', `${helperCount} helpers loaded`);
   return helpers;
 }

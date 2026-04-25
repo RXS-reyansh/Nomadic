@@ -1,6 +1,12 @@
+import {
+  ContainerBuilder,
+  MessageFlags,
+  TextDisplayBuilder,
+} from 'discord.js';
 import { HermacaClient } from '../../structures/HermacaClient.js';
-import { sendError, sendSuccess } from '../../components/statusMessages.js';
+import { sendError } from '../../components/statusMessages.js';
 import { buildAfkConfirmationPayload, type AfkScope } from '../../components/afk.js';
+import { emojis } from '../../emojis.js';
 import { parseSayText } from '../../helpers/emojiParser.js';
 import { resolveEmoji } from '../../helpers/emojiResolver.js';
 
@@ -67,6 +73,23 @@ async function parseAfkInput(
   let text = rawInput.trim();
   let imageUrl = attachmentUrl;
 
+  let sinceAt = new Date();
+  let tillAt: Date | null = null;
+  const developerIds = client.config.developers.map((dev: string[]) => dev[1]);
+
+  if (developerIds.includes(userId)) {
+    const tsRegex = /<t:(\d{1,13})(?::[tTdDfFR])?>\s*$/;
+    const trailingMatch = text.match(tsRegex);
+    if (trailingMatch && typeof trailingMatch.index === 'number') {
+      text = text.slice(0, trailingMatch.index).replace(/\s+$/, '');
+      const date = new Date(Number(trailingMatch[1]) * 1000);
+      if (!Number.isNaN(date.getTime())) {
+        if (date.getTime() <= Date.now()) sinceAt = date;
+        else tillAt = date;
+      }
+    }
+  }
+
   if (!imageUrl) {
     const parts = text.split(/\s+/);
     const last = parts[parts.length - 1];
@@ -74,24 +97,6 @@ async function parseAfkInput(
       imageUrl = last;
       parts.pop();
       text = parts.join(' ').trim();
-    }
-  }
-
-  let sinceAt = new Date();
-  let tillAt: Date | null = null;
-  const developerIds = client.config.developers.map((dev: string[]) => dev[1]);
-  const timestampMatch = text.match(/\s*<t:(\d{1,12})(?::[tTdDfFR])?>\s*$/);
-
-  if (timestampMatch && developerIds.includes(userId)) {
-    text = text.slice(0, timestampMatch.index).trim();
-    const timestamp = Number(timestampMatch[1]) * 1000;
-    const date = new Date(timestamp);
-    if (!Number.isNaN(date.getTime())) {
-      if (date.getTime() <= Date.now()) {
-        sinceAt = date;
-      } else {
-        tillAt = date;
-      }
     }
   }
 
@@ -107,6 +112,17 @@ async function parseAfkInput(
     imageUrl,
     sinceAt,
     tillAt,
+  };
+}
+
+function buildStatusPayload(icon: string, content: string) {
+  const container = new ContainerBuilder().addTextDisplayComponents(
+    new TextDisplayBuilder().setContent(`${icon} ${content}`),
+  );
+  return {
+    components: [container],
+    flags: MessageFlags.IsComponentsV2,
+    allowedMentions: { parse: [] as any[] },
   };
 }
 
@@ -144,24 +160,21 @@ async function sendAfkConfirmation({
   });
 
   collector.on('collect', async (i: any) => {
-    await i.deferUpdate();
     const action = i.customId.split(':').pop() as AfkScope | 'cancel';
 
     if (action === 'cancel') {
-      await sendError(
-        { message: prompt, existingMessage: prompt },
-        'AFK confirmation cancelled by the user.',
-      ).catch((): null => null);
+      await i.update(buildStatusPayload(emojis.redcross, 'AFK confirmation cancelled by the user.'))
+        .catch((): null => null);
       return;
     }
 
     if (action === 'server' && !guildId) {
-      await sendError(
-        { message: prompt, existingMessage: prompt },
-        'Server AFK can only be used inside a server.',
-      ).catch((): null => null);
+      await i.update(buildStatusPayload(emojis.redcross, 'Server AFK can only be used inside a server.'))
+        .catch((): null => null);
       return;
     }
+
+    await i.deferUpdate().catch((): null => null);
 
     await client.db.setAFK({
       userId,
@@ -173,9 +186,13 @@ async function sendAfkConfirmation({
       tillAt: parsed.tillAt,
     });
 
-    await sendSuccess(
-      { message: prompt, existingMessage: prompt },
-      action === 'server' ? 'Your AFK has been set for this server.' : 'Your AFK has been set for all mutual servers.',
+    await i.editReply(
+      buildStatusPayload(
+        emojis.blacktick,
+        action === 'server'
+          ? 'Your AFK has been set for this server.'
+          : 'Your AFK has been set for all mutual servers.',
+      ),
     ).catch((): null => null);
   });
 

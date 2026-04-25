@@ -121,14 +121,14 @@ export function buildAfkRemovedPayload(durationText: string, removedAt: Date = n
 export function formatHumanDuration(ms: number): string {
   let seconds = Math.max(0, Math.floor(ms / 1000));
   const units = [
-    ['century', 100 * 365 * 24 * 60 * 60],
-    ['decade', 10 * 365 * 24 * 60 * 60],
-    ['year', 365 * 24 * 60 * 60],
-    ['month', 30 * 24 * 60 * 60],
-    ['day', 24 * 60 * 60],
-    ['hour', 60 * 60],
-    ['minute', 60],
-    ['second', 1],
+    ['centuries', 100 * 365 * 24 * 60 * 60],
+    ['decades', 10 * 365 * 24 * 60 * 60],
+    ['years', 365 * 24 * 60 * 60],
+    ['months', 30 * 24 * 60 * 60],
+    ['days', 24 * 60 * 60],
+    ['hours', 60 * 60],
+    ['minutes', 60],
+    ['seconds', 1],
   ] as const;
   const parts: string[] = [];
 

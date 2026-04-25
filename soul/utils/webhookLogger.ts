@@ -193,7 +193,11 @@ class WebhookLogger {
       .setDescription(desc)
       .setTimestamp();
 
-    logger.info('SHARD', `Shard ${shardId} ${event}${error ? ` - ${error.message}` : ''}`);
+    // NOTE: do NOT re-log to console here. Callers (the inline shardReady
+    // listener in `soul/hermaca.ts` and the per-event files in
+    // `soul/events/discord/shard*.ts`) already emit the user-facing console
+    // line themselves. Logging again here produces duplicate "[SHARD] Shard N
+    // ready" lines in the boot block.
     this.enqueue('shardLog', embed);
   }
 
@@ -214,7 +218,10 @@ class WebhookLogger {
       .setDescription(desc)
       .setTimestamp();
 
-    logger.info('NODE', `Node ${nodeName} ${event}${error ? ` - ${error.message}` : ''}`);
+    // NOTE: do NOT re-log to console here. Callers (bootstrap's first-ready
+    // capture in `soul/hermaca.ts` and the per-event files in
+    // `soul/events/node/*.ts`) already emit the user-facing console line
+    // themselves. Logging again here would produce duplicate `[NODE]` lines.
     this.enqueue('nodeLog', embed);
   }
 

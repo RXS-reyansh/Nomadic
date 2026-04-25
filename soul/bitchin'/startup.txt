@@ -1,0 +1,90 @@
+FIRSTLY, JUST ANALYSE THE FOLLOWING AND TELL IF YOU WILL BE ABLE TO ACHIEVE THE FOLLOWING PERFECTLY OR NOT.
+STARTUP LOGS:
+
+(line)
+[[[ASCII!]]]
+[CLUSTER] ☄️ Cluster #0 created
+[CLUSTER] ☄️ (one more info about cluster)
+(line)
+[HOST] 🌐 Hosting service IP: (ip)/(mask)
+[HOST] 🌐 Hosting service hardcoded as: (name)
+[STATUS] Mobile device indicator enabled for clientId 1493742629781897276. // this line should only be shown when mobile device displayStatus in used
+(line)
+[DATABASE] 🪐 Database initialized for bot: (identifier) (Using PREFIXED or DEFAULT Collection) // prefix when bot identifier provided, default when not provided so no prefix is added in database
+[DATABASE] 🪐 Connected to (database name) for bot: (buildName)
+[DATABASE] 🪐 Lyrics cache TTL index ensured
+[DATABASE] 🪐 Database connected
+(line)
+[DATABASE - LOADING DATA] ✨ Noprefix is DISABLED
+[DATABASE - LOADING DATA] ✨ Guilds with noprefix disabled: (guild name1), (guild name2)
+[DATABASE - LOADING DATA] 🪐 AFK cache populated: n active user(s)
+[DATABASE - LOADING DATA] ✨ Guild volumes loaded
+[DATABASE - LOADING DATA] ✨ Spotify IDs loaded
+[DATABASE - LOADING DATA] ✨ Loaded n guild prefixes
+[DATABASE - LOADING DATA] ✨ Loaded n sticky messages
+(line)
+[LOADING DATA - 24/7]
+✨ Found n guilds with 24/7 enabled
+[1/n] Auto-connected to (voice channel name) in (guild 1)
+[2/n] Auto-connected to (voice channel name) in (guild 2)
+...
+[n/n] Auto-connected to (voice channel name) in (guild n)
+✨ 24/7 auto-connect completed
+(line)
+[EVENT LOADER] Loading events
+[EVENT LOADER] n events loaded
+[HELPERS LOADER] Loading helper functions...
+[HELPERS LOADER] n helpers loaded
+[COMMANDS LOADER] Loaded n prefix commands (0 skipped)
+[SLASH LOADER] Loaded n slash executables (0 skipped)
+[HANDLERS] All modules loaded
+(line)
+[DEVELOPER] 🎀 Developer: (name in config.ts)
+[DEVELOPER] 🎀 ID: (id in config.ts)
+[DEVELOPER] 🎀 Username: (fetch the username)
+[DEVELOPER] 🎀 Github: (link in config.ts)
+// ONLY THE MAIN DEVELOPER
+(line)
+[BOT] Bot Tag: (username or user tag of bot)
+[BOT] Prefix: (global prefix)
+[BOT] Total Servers: (actual number of servers)
+[BOT] Total Users: (users only in all servers, not bots)
+[BOT] Total Users (including bots): (users + bots in all servers)
+[BOT] Github Repo: (from config.ts)
+(line)
+[SERVER LIST]
+Found n guilds
+[1/n] (guild name 1) | Members: (total members including bots) |  Invite link: (invite link of the server)
+[2/n] (guild name 2) | Members: (total members including bots) |  Invite link: (invite link of the server)
+...
+[n/n] (guild name n) | Members: (total members including bots) |  Invite link: (invite link of the server)
+(line)
+[SHARD] Shard 0 ready
+(line)
+[CLIENT] Logged in as Nomadic#5806
+[CLIENT] Cluster ID: 0
+(node:131) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+(Use `node --trace-deprecation ...` to show where the warning was created) // FIX THIS WARNING
+(line)
+[SLASH] ℹ️ Registering slash commands globally...
+[SLASH] Registered 31 global slash commands
+(line)
+[LAVALINK] Kazagumo music system initialized
+[NODE] ✅ Lavalink node "Serenetia" connected!
+(line)
+[STATUS] Applied status "(name of status, for example "Main")" (displayStatus=(whatever it is, idle/dnd/mobile/invisible/online)
+[YAY!] 🎯 Bot fully initialized and ready!
+(line)
+
+
+-------------
+
+// is just a comment in above, you don't have to add that
+
+(line) is:
+﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌
+(define this in logger file)
+
+Add those new tags. Color should be in color-config.ts only.
+For ASCII at starting, take reference from the files in reference directory which is in root. The main color for ascii should be configurable in a config file (probably color-config.ts only, at top) by which gradient is made.
+Same ascii as in ascii.txt of reference.

@@ -28,7 +28,7 @@ function getFilesRecursive(dir: string): string[] {
       }
     }
   } catch (err) {
-    logger.error('EVENT_LOADER', `Failed to scan directory ${dir}: ${(err as Error).message}`);
+    logger.error('EVENT LOADER', `Failed to scan directory ${dir}: ${(err as Error).message}`);
   }
   return files;
 }
@@ -36,9 +36,11 @@ function getFilesRecursive(dir: string): string[] {
 export async function loadAllEvents(client: HermacaClient): Promise<void> {
   const eventsDir = join(__dirname, '../events');
 
+  logger.info('EVENT LOADER', 'Loading events');
+
+  let loadedCount = 0;
   try {
     const eventFiles = getFilesRecursive(eventsDir);
-    let loadedCount = 0;
 
     for (const filePath of eventFiles) {
       try {
@@ -47,7 +49,7 @@ export async function loadAllEvents(client: HermacaClient): Promise<void> {
         const event: EventModule = module.default || module;
 
         if (!event.name || !event.type || !event.execute) {
-          logger.warn('EVENT_LOADER', `Skipping ${filePath}: missing name/type/execute`);
+          logger.warn('EVENT LOADER', `Skipping ${filePath}: missing name/type/execute`);
           continue;
         }
 
@@ -58,34 +60,32 @@ export async function loadAllEvents(client: HermacaClient): Promise<void> {
           if (once) client.once(name as any, handler);
           else client.on(name as any, handler);
         } else if (type === 'player') {
-          // Player events live on the Kazagumo instance
           if (!client.kazagumo) {
-            logger.error('EVENT_LOADER', `Cannot attach player event "${name}": Kazagumo not initialized`);
+            logger.error('EVENT LOADER', `Cannot attach player event "${name}": Kazagumo not initialized`);
             continue;
           }
           if (once) client.kazagumo.once(name as any, handler);
           else client.kazagumo.on(name as any, handler);
         } else if (type === 'node') {
-          // Node events live on the underlying Shoukaku instance
           if (!client.kazagumo?.shoukaku) {
-            logger.error('EVENT_LOADER', `Cannot attach node event "${name}": Shoukaku not initialized`);
+            logger.error('EVENT LOADER', `Cannot attach node event "${name}": Shoukaku not initialized`);
             continue;
           }
           if (once) client.kazagumo.shoukaku.once(name as any, handler);
           else client.kazagumo.shoukaku.on(name as any, handler);
         } else {
-          logger.warn('EVENT_LOADER', `Unknown event type "${type}" in ${filePath}`);
+          logger.warn('EVENT LOADER', `Unknown event type "${type}" in ${filePath}`);
           continue;
         }
 
         loadedCount++;
       } catch (err) {
-        logger.error('EVENT_LOADER', `Failed to load ${filePath}: ${(err as Error).message}`);
+        logger.error('EVENT LOADER', `Failed to load ${filePath}: ${(err as Error).message}`);
       }
     }
 
-    logger.info('EVENT_LOADER', `Loaded ${loadedCount} events`);
+    logger.info('EVENT LOADER', `${loadedCount} events loaded`);
   } catch (err) {
-    logger.error('EVENT_LOADER', `Fatal error loading events: ${(err as Error).message}`);
+    logger.error('EVENT LOADER', `Fatal error loading events: ${(err as Error).message}`);
   }
 }
