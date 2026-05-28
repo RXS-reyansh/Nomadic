@@ -53,6 +53,18 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
   if (action === 'add') {
     const userId = await resolveTargetUserId(message, args, client);
     if (!userId) return sendError({ message }, 'Please provide a valid user ID, mention, or username.');
+
+    // Hard guard — developers (including the invoker themselves) can never
+    // be blacklisted. Without this you can lock yourself out of every
+    // command on the bot, including this one.
+    const developerIds: string[] = client.config.developers.map((dev: string[]) => dev[1]);
+    if (developerIds.includes(userId)) {
+      if (userId === message.author.id) {
+        return sendError({ message }, 'You cannot blacklist yourself.');
+      }
+      return sendError({ message }, `<@${userId}> is a developer and cannot be blacklisted.`);
+    }
+
     const alreadyBlacklisted = await client.db.isUserBlacklisted(userId);
     if (alreadyBlacklisted) return sendInfo({ message }, `<@${userId}> is already blacklisted.`);
     await client.db.addBlacklistedUser(userId, message.author.id);

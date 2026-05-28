@@ -92,3 +92,26 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
     allowedMentions: { parse: [] },
   });
 }
+
+export async function slashExecute(interaction: any, client: HermacaClient) {
+  await interaction.deferReply();
+  const ctx = { interaction };
+
+  let guild = interaction.guild;
+  if (!guild) return sendError(ctx, 'This command can only be used in a server.');
+
+  const guildIdArg: string | null = interaction.options.getString('guild_id');
+  if (guildIdArg && isDeveloper(interaction.user.id, client)) {
+    const found = client.guilds.cache.get(guildIdArg.trim());
+    if (!found) return sendError(ctx, `No server found with ID \`${guildIdArg.trim()}\`.`);
+    guild = found;
+  }
+
+  const container = await buildMembercountPayload(guild, interaction.user.username);
+
+  await interaction.editReply({
+    components: [container],
+    flags: MessageFlags.IsComponentsV2,
+    allowedMentions: { parse: [] },
+  });
+}

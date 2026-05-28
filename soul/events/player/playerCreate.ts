@@ -2,6 +2,7 @@
 // Kazagumo event: 'playerCreate' — fires when a player is created (same name as Riffy)
 // Args: (player: KazagumoPlayer)
 import logger from '../../console/logger.js';
+import { getSession } from '../../helpers/sessionQueue.js';
 
 export const name = 'playerCreate';
 export const type = 'player';
@@ -11,6 +12,9 @@ export async function execute(client: any, player: any): Promise<void> {
   if (!guild) return;
 
   logger.success('PLAYER', `✨ Player created for ${guild.name} (${guild.id})`);
+
+  // Initialize an empty session queue so the queue command always has a target.
+  getSession(player);
 
   // Apply saved volume + cache it on the player so the now-playing panel can
   // tag the value as "(Server volume)" when it's still in use.

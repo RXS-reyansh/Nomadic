@@ -19,6 +19,7 @@ const logEmojis = {
 import { WebhookClient, EmbedBuilder } from 'discord.js';
 import logger from '../console/logger.js';
 import config from '../config.js';
+import { getHostingProviderName } from '../helpers/getHostingServiceIP.js';
 
 interface QueuedMessage {
   webhookKey: keyof typeof config.webhooks;
@@ -99,6 +100,7 @@ class WebhookLogger {
   logReady(client: any): void {
     const presenceName: string =
       client.statusManager?.getInstanceName?.() ?? 'N/A';
+    const hostName = getHostingProviderName();
     const embed = new EmbedBuilder()
       .setColor(0x2ecc71)
       .setTitle(withEmoji(logEmojis.blackTick, 'Bot Ready'))
@@ -106,7 +108,8 @@ class WebhookLogger {
         `**User:** ${client.user?.tag || 'N/A'}\n` +
         `**Guilds:** ${client.guilds.cache.size}\n` +
         `**Cluster:** ${client.cluster?.id?.toString() || 'N/A'}\n` +
-        `**Presence:** ${presenceName}`,
+        `**Presence:** ${presenceName}\n` +
+        `**Host:** ${hostName}`,
       )
       .setTimestamp();
     this.enqueue('readyLog', embed);

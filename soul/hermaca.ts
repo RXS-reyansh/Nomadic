@@ -80,6 +80,46 @@ async function bootstrap(): Promise<HermacaClient> {
     // so its listener is in place before the event fires below.
     client.initKazagumo();
 
+    // ── Boot-window error sink ─────────────────────────────────────────────
+    // Shoukaku immediately starts connecting after initKazagumo(). If the
+    // node is unreachable, it emits 'error' on the Shoukaku instance before
+    // loadAllEvents() has had a chance to register nodeError.ts — causing
+    // Node to crash with ERR_UNHANDLED_ERROR. This temporary handler absorbs
+    // those errors and is removed once the real nodeError.ts listener is live.
+    const _bootErrorCooldowns = new Map<string, { lastAt: number; suppressed: number }>();
+    const _bootNodeErrorSink = (name: string, err: any) => {
+      const code: string = typeof err === 'string' ? err
+        : err?.code ? String(err.code)
+        : err?.errors?.[0]?.code ? String(err.errors[0].code)
+        : err?.constructor?.name ?? err?.name ?? 'unknown';
+      const key = `${name}::${code}`;
+      const now = Date.now();
+      const entry = _bootErrorCooldowns.get(key);
+      if (entry && now - entry.lastAt < 60_000) {
+        entry.suppressed++;
+        return;
+      }
+      const suppressed = entry?.suppressed ?? 0;
+      _bootErrorCooldowns.set(key, { lastAt: now, suppressed: 0 });
+
+      // Delay the log by 250 ms so a concurrently-connecting node has time to
+      // reach CONNECTED state. If one does, suppress this error silently.
+      setTimeout(() => {
+        const nodes: Map<string, any> = client.kazagumo?.shoukaku?.nodes;
+        if (nodes) {
+          for (const [nodeName, node] of nodes) {
+            if (nodeName !== name && node.state === 1 /* CONNECTED */) return;
+          }
+        }
+        logger.warn(
+          'NODE',
+          `Node "${name}" error during boot (pre-handler): ${code}` +
+            (suppressed > 0 ? ` (${suppressed} repeat${suppressed === 1 ? '' : 's'} suppressed)` : ''),
+        );
+      }, 250);
+    };
+    client.kazagumo.shoukaku.on('error', _bootNodeErrorSink);
+
     // Capture the FIRST shoukaku 'ready' so we can print the [NODE] line at
     // the right moment in the boot block. nodeConnect.ts also attaches an
     // `.on('ready')` handler, but it suppresses the boot-time log via
@@ -114,12 +154,13 @@ async function bootstrap(): Promise<HermacaClient> {
 
     // ── [LAVALINK] + [NODE] block ──
     logger.line();
-    logger.success('LAVALINK', 'Kazagumo music system initialized');
+    const nodeCount = config.nodes.length;
+    logger.success('LAVALINK', `Kazagumo music system initialized (${nodeCount} node${nodeCount === 1 ? '' : 's'} configured)`);
     const nodeName = await firstNodePromise;
     if (nodeName) {
       logger.success('NODE', `✅ Lavalink node "${nodeName}" connected!`);
     } else {
-      const timeoutMessage = `⏳ No Lavalink node connected within ${NODE_READY_TIMEOUT_MS / 1000}s — continuing.`;
+      const timeoutMessage = `⏳ No Lavalink node connected within ${NODE_READY_TIMEOUT_MS / 1000}s — continuing without audio.`;
       logger.warn('NODE', timeoutMessage);
       // Fire an error webhook so the failure is visible off-console too.
       webhookLogger.logError(
@@ -150,6 +191,9 @@ async function bootstrap(): Promise<HermacaClient> {
     // ── Loader blocks ──
     logger.line();
     await loadAllEvents(client);
+    // nodeError.ts is now live — remove the temporary boot-window sink so
+    // errors are no longer double-handled.
+    client.kazagumo.shoukaku.removeListener('error', _bootNodeErrorSink);
     client.helpers = await loadHelpers(client);
     await loadPrefixCommands(client);
     await loadSlashCommands(client);

@@ -74,6 +74,19 @@ export async function loadHelpers(client: HermacaClient): Promise<Record<string,
         }
 
         case 'player:stop': {
+          // Mirror the prefix `stop` command exactly — when 24/7 mode is on
+          // for this guild, just stop playback and clear the queue without
+          // disconnecting from the voice channel.
+          const is247 = await client.db?.get24Seven(player.guildId).catch((): null => null);
+          if (is247?.enabled) {
+            await disableNowPlayingButtons(client, player);
+            player.queue.clear();
+            if (player.queue.current) {
+              try { player.skip(); } catch { /* skip is sync — ignore */ }
+            }
+            return;
+          }
+
           await disableNowPlayingButtons(client, player);
           clearPlayerState(player.guildId);
           await player.destroy().catch((): null => null);

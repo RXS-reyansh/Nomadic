@@ -5,6 +5,7 @@
 import { HermacaClient } from '../../structures/HermacaClient.js';
 import { sendError, sendSuccess } from '../../components/statusMessages.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { getSession, shuffleUpcoming } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'shuffle',
@@ -31,11 +32,17 @@ async function handle(
   if (!player) return sendError(ctxObj, 'There is no active player in this server.');
   if (player.queue.length < 2) return sendError(ctxObj, 'Need at least 2 tracks in the queue to shuffle.');
 
-  // Fisher–Yates shuffle of the upcoming-queue array (KazagumoQueue extends Array)
-  for (let i = player.queue.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [player.queue[i], player.queue[j]] = [player.queue[j], player.queue[i]];
-  }
+  // Shuffle the session-queue's upcoming entries first, then mirror that
+  // order onto player.queue so both stay in lock-step (using two independent
+  // Fisher–Yates shuffles would diverge the two views).
+  shuffleUpcoming(player);
+
+  const state = getSession(player);
+  const upcomingTracks = state.entries
+    .slice(state.currentIndex + 1)
+    .map(e => e.track);
+  player.queue.length = 0;
+  for (const t of upcomingTracks) player.queue.push(t);
 
   await updateNowPlayingMessage(client, player).catch((): null => null);
   return sendSuccess(ctxObj, `Shuffled **${player.queue.length}** tracks in the queue.`);

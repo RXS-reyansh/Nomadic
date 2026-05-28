@@ -31,16 +31,50 @@ function resolveVoiceChannel(guild: any, arg: string): any | null {
   );
 }
 
+async function handle(
+  ctx: any,
+  client: HermacaClient,
+  guild: any,
+  textChannelId: string,
+  targetChannel: any,
+) {
+  if (!targetChannel) return sendError(ctx, 'No voice channel found to join.');
+  if (!targetChannel.isVoiceBased?.()) {
+    return sendError(ctx, 'That channel is not a voice channel.');
+  }
+
+  const botMember = guild.members.me;
+  const perms = targetChannel.permissionsFor(botMember);
+  if (!perms?.has('Connect') || !perms?.has('Speak')) {
+    return sendError(ctx, `I don't have permission to join or speak in <#${targetChannel.id}>.`);
+  }
+
+  let player: any = client.kazagumo.players.get(guild.id);
+  if (player) {
+    if (player.voiceId !== targetChannel.id) {
+      await player.setVoiceChannel(targetChannel.id).catch((): null => null);
+    }
+  } else {
+    player = await client.kazagumo.createPlayer({
+      guildId: guild.id,
+      voiceId: targetChannel.id,
+      textId: textChannelId,
+      deaf: true,
+    }).catch((): null => null);
+  }
+
+  return sendSuccess(ctx, `Joined <#${targetChannel.id}>.`);
+}
+
 export async function prefixExecute(message: any, args: string[], client: HermacaClient) {
-  const statusCtx = { message };
+  const ctx = { message };
   const guild = message.guild;
   const member = message.member;
 
   let targetChannel: any = null;
-
   if (args.length > 0) {
     targetChannel = resolveVoiceChannel(guild, args.join(' '));
-    if (!targetChannel) return sendError(statusCtx, 'Voice channel not found.');
+    if (!targetChannel) return sendError(ctx, 'Voice channel not found.');
   } else if (member?.voice?.channel) {
     targetChannel = member.voice.channel;
   } else {
@@ -50,29 +84,27 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
       .first();
   }
 
-  if (!targetChannel) return sendError(statusCtx, 'No voice channel found to join.');
+  return handle(ctx, client, guild, message.channel.id, targetChannel);
+}
 
-  const botMember = guild.members.me;
-  const perms = targetChannel.permissionsFor(botMember);
-  if (!perms?.has('Connect') || !perms?.has('Speak')) {
-    return sendError(statusCtx, `I don't have permission to join or speak in <#${targetChannel.id}>.`);
-  }
+export async function slashExecute(interaction: any, client: HermacaClient) {
+  await interaction.deferReply();
+  const ctx = { interaction };
+  const guild = interaction.guild;
+  if (!guild) return sendError(ctx, 'This command can only be used in a server.');
 
-  // Kazagumo: kazagumo.players.get() and kazagumo.createPlayer() instead of riffy
-  let player: any = client.kazagumo.players.get(guild.id);
-  if (player) {
-    // Kazagumo: voiceId replaces voiceChannel; textId replaces textChannel
-    if (player.voiceId !== targetChannel.id) {
-      await player.setVoiceChannel(targetChannel.id).catch((): null => null);
+  let targetChannel: any = interaction.options.getChannel('channel');
+  if (!targetChannel) {
+    const member = await guild.members.fetch(interaction.user.id).catch((): null => null);
+    if (member?.voice?.channel) {
+      targetChannel = member.voice.channel;
+    } else {
+      targetChannel = guild.channels.cache
+        .filter((c: any) => c.type === ChannelType.GuildVoice)
+        .sort((a: any, b: any) => a.rawPosition - b.rawPosition)
+        .first();
     }
-  } else {
-    player = await client.kazagumo.createPlayer({
-      guildId: guild.id,
-      voiceId: targetChannel.id,
-      textId: message.channel.id,
-      deaf: true,
-    }).catch((): null => null);
   }
 
-  return sendSuccess(statusCtx, `Joined <#${targetChannel.id}>.`);
+  return handle(ctx, client, guild, interaction.channelId, targetChannel);
 }

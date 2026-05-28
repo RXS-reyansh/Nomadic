@@ -3,6 +3,7 @@ import { ContainerBuilder, TextDisplayBuilder } from 'discord.js';
 import { HermacaClient } from '../../structures/HermacaClient.js';
 import { emojis } from '../../emojis.js';
 import { buildPingPayload } from '../../components/ping.js';
+import { resolveWsPing } from '../../utils/wsPing.js';
 
 async function measureDbPing(client: HermacaClient): Promise<number | null> {
   return client.db.ping().catch((): null => null);
@@ -58,18 +59,7 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
     measureLavalinkPing(client),
   ]);
 
-  // client.ws.ping returns -1 when no heartbeat ACK has been received yet.
-  // Fall back to the first shard's individual ping, which often reports a
-  // valid value before the manager-level average does.
-  let rawWsPing = Math.round(client.ws.ping);
-  if (rawWsPing < 0) {
-    const shardPing = (client.ws as any)?.shards?.first?.()?.ping;
-    if (typeof shardPing === 'number' && shardPing >= 0) rawWsPing = Math.round(shardPing);
-  }
-  const wsPing: number | null = rawWsPing < 0 ? null : rawWsPing;
-
-  const clusterId: number = (client.cluster as any)?.id ?? 0;
-  const shardId: number = (message.guild as any)?.shardId ?? 0;
+  const wsPing: number | null = resolveWsPing(client, apiLatency);
 
   const guildPrefix: string = message.guild
     ? ((await client.helpers.getGuildPrefix?.(message.guild.id).catch((): null => null)) ?? client.config.prefix)
@@ -83,8 +73,6 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
   });
 
   const container = buildPingPayload({
-    clusterId,
-    shardId,
     apiLatency,
     wsPing,
     dbLatency,

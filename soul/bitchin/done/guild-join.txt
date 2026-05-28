@@ -1,0 +1,12 @@
+Make it like the following:
+
+same heading as current
+(separator)
+{emojis.blueFlowers} A warm thank you, <mention owner>
+{emojis.blueFlowers} I’m all about midnight melodies, anthemic hooks, and the beauty of a fading outro — let's create a soundtrack together.
+{emojis.blueFlowers} Type (prefix)help to see everything I can do. [don't make help in `` and prefix should be global one]
+{emojis.blueFlowers}  Or just say (prefix)play <song name> and I'll take it from there.
+(separator)
+-# (same as current)
+
+and make sure you are using variables i.e. Botname instead of "Nomadic" and some other things that aren't hardcoded.

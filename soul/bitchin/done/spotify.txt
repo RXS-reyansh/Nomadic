@@ -1,0 +1,24 @@
+Right now, you just have to analyse the code and look up about spotify connection and extraction.
+
+See, I want following commands under a category named "spotify",
+- linkspotify
+- playspotify
+- unlinkspotify
+- spotify-profile
+- spotify-stats
+
+What each of them does:
+linkspotify: accepts spotify profile id or profile link and saves it to database along with the user id (basically links user id and spotify id together). Example: profile id "31fskpqyqxwqfovpzjmusztm3bg4" and profile link "https://open.spotify.com/user/31fskpqyqxwqfovpzjmusztm3bg4"
+
+unlinkspotify: removes from database
+
+playspotify: fetches all public playlists of the user and displays them in a component message, the user can pick any of the playlist to play from
+
+spotify-profile: shows the spotify profile of the user in a component message
+spotify-stats: shows user's spotify stats 
+
+Now see, I think that last two commands cannot be made as spotify doesn't provide that data much. BUT rest three commands can be easily implemented I believe.
+
+Next, suggest me last.fm integration commands. What all is possible with last.fm. Suggest command names and functionality. Suggest ways to connect last.fm profile for a user. Make a last-fm.md file for this. Suggest as many as possible, I will pick from them.
+
+You don't have to change code right now. Just analyse the possibility of implementing all this.

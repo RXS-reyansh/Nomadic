@@ -6,6 +6,7 @@ import { HermacaClient } from '../../structures/HermacaClient.js';
 import { sendError, sendSuccess } from '../../components/statusMessages.js';
 import { sendWrongUsage } from '../../components/wrongUsage.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { removeUpcoming } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'remove',
@@ -38,6 +39,7 @@ async function handle(
 
   // KazagumoQueue extends Array — splice removes in place.
   const [removed] = player.queue.splice(position - 1, 1);
+  removeUpcoming(player, position);
   await updateNowPlayingMessage(client, player).catch((): null => null);
   return sendSuccess(ctxObj, `Removed **${removed?.title ?? 'track'}** from position **#${position}**.`);
 }

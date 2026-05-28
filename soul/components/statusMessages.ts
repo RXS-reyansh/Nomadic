@@ -8,6 +8,7 @@ import {
   type TextBasedChannel,
 } from 'discord.js';
 import { emojis } from '../emojis.js';
+import { escapeFormatting } from '../utils/formatting.js';
 
 export interface StatusContext {
   interaction?: ChatInputCommandInteraction;
@@ -135,7 +136,7 @@ export async function blacklistedUser(context: StatusContext) {
 export async function blacklistedServer(context: StatusContext, guild: any, client: any) {
   const devId: string | undefined = client.config?.developers?.[0]?.[1];
   const devUser = devId ? await (client.users.fetch(devId) as Promise<any>).catch((): null => null) : null;
-  const developerName = devUser ? `@${devUser.username}` : (client.config?.developers?.[0]?.[0] ?? 'the developer');
+  const developerName = devUser ? `@${escapeFormatting(devUser.username)}` : (client.config?.developers?.[0]?.[0] ?? 'the developer');
   const supportServer = client.config?.supportServer ?? '';
   const supportLine = supportServer ? `- [Support server](${supportServer})` : '- Support server';
   const ownerId = guild?.ownerId;

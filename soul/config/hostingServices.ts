@@ -20,4 +20,6 @@ export interface HostingServiceEntry {
 export const hostingServices: HostingServiceEntry[] = [
   // Add your entries here:
   // { name: 'Service Name', ip: '0.0.0.0' },
+  { name: 'Nex Cloud', ip: '82.41.64.6' },
+  { name: 'Wispbyte', ip: '93.115.101.104' },
 ];

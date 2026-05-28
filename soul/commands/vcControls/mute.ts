@@ -17,28 +17,22 @@ export const options = {
   cooldown: 3,
 };
 
-export async function prefixExecute(message: any, args: string[], client: HermacaClient) {
-  const statusCtx = { message };
-  const guild = message.guild;
-  const commandUserId: string = message.author.id;
-
-  let targetUser = message.author;
-  if (args.length > 0) {
-    const resolved = await resolveUser(client, guild, args[0]);
-    if (!resolved) return sendError(statusCtx, 'User not found. Try a mention, user ID, or username.');
-    targetUser = resolved;
-  }
-
+async function handle(
+  ctx: any,
+  guild: any,
+  targetUser: any,
+  commandUserId: string,
+) {
   let targetMember: any;
   try {
     targetMember = await guild.members.fetch(targetUser.id);
   } catch {
-    return sendError(statusCtx, 'Could not find that user in this server.');
+    return sendError(ctx, 'Could not find that user in this server.');
   }
 
   if (!targetMember.voice.channel) {
     return sendError(
-      statusCtx,
+      ctx,
       targetUser.id === commandUserId
         ? 'You are not in any voice channel.'
         : `<@${targetUser.id}> is not in any voice channel.`,
@@ -47,7 +41,7 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
 
   if (targetMember.voice.serverMute) {
     return sendError(
-      statusCtx,
+      ctx,
       targetUser.id === commandUserId
         ? 'You are already server-muted.'
         : `<@${targetUser.id}> is already server-muted.`,
@@ -60,8 +54,33 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
       targetUser.id === commandUserId
         ? `Muted you in <#${targetMember.voice.channel.id}>.`
         : `Muted <@${targetUser.id}> in <#${targetMember.voice.channel.id}>.`;
-    return sendSuccess(statusCtx, text);
+    return sendSuccess(ctx, text);
   } catch (err: any) {
-    return sendError(statusCtx, `Failed to mute: ${err.message}`);
+    return sendError(ctx, `Failed to mute: ${err.message}`);
   }
+}
+
+export async function prefixExecute(message: any, args: string[], client: HermacaClient) {
+  const ctx = { message };
+  const guild = message.guild;
+  const commandUserId: string = message.author.id;
+
+  let targetUser = message.author;
+  if (args.length > 0) {
+    const resolved = await resolveUser(client, guild, args[0]);
+    if (!resolved) return sendError(ctx, 'User not found. Try a mention, user ID, or username.');
+    targetUser = resolved;
+  }
+
+  return handle(ctx, guild, targetUser, commandUserId);
+}
+
+export async function slashExecute(interaction: any, _client: HermacaClient) {
+  await interaction.deferReply();
+  const ctx = { interaction };
+  const guild = interaction.guild;
+  if (!guild) return sendError(ctx, 'This command can only be used in a server.');
+
+  const targetUser = interaction.options.getUser('user') ?? interaction.user;
+  return handle(ctx, guild, targetUser, interaction.user.id);
 }

@@ -6,8 +6,6 @@ import {
 import { emojis } from '../emojis.js';
 
 export interface PingStats {
-  clusterId: number;
-  shardId: number;
   apiLatency: number;
   wsPing: number | null;
   dbLatency: number | null;
@@ -23,8 +21,6 @@ function fmt(ms: number | null): string {
 
 export function buildPingPayload(stats: PingStats): object {
   const {
-    clusterId,
-    shardId,
     apiLatency,
     wsPing,
     dbLatency,
@@ -34,26 +30,30 @@ export function buildPingPayload(stats: PingStats): object {
     sentAt,
   } = stats;
 
-  const hasIssue = dbLatency === null || lavalinkLatency === null;
+  const hasIssue =
+    dbLatency === null ||
+    lavalinkLatency === null ||
+    (typeof apiLatency === 'number' && apiLatency > 500) ||
+    (typeof wsPing === 'number' && wsPing > 500) ||
+    (typeof dbLatency === 'number' && dbLatency > 500) ||
+    (typeof lavalinkLatency === 'number' && lavalinkLatency > 500);
 
-  const statusLine = hasIssue
-    ? '### The bot is NOT working properly.'
-    : '### The bot is working perfectly.';
+  const headerLine = hasIssue
+    ? `## ${emojis.redBlackCross} The bot is NOT working properly.`
+    : `## ${emojis.redBlackCross} The bot is working perfectly.`;
 
   const statsBlock = [
-    statusLine,
     `- API Latency: ${fmt(apiLatency)}`,
     `- Websocket Ping: ${fmt(wsPing)}`,
     `- Database Latency: ${fmt(dbLatency)}`,
     `- Lavalink Latency: ${fmt(lavalinkLatency)}`,
-    `- Shard ID: ${shardId}`,
   ].join('\n');
 
   const footerLine = `-# Requested by ${authorUsername} at ${sentAt} UTC | For more info use \`${guildPrefix}debug\` command.`;
 
   return new ContainerBuilder()
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`## ${emojis.redBlackCross} Cluster ${clusterId}`),
+      new TextDisplayBuilder().setContent(headerLine),
     )
     .addSeparatorComponents(new SeparatorBuilder().setDivider(true))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(statsBlock))

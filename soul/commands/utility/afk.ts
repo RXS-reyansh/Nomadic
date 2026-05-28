@@ -68,27 +68,13 @@ async function parseAfkInput(
   attachmentUrl: string | null,
   client: HermacaClient,
   guild: any,
-  userId: string,
+  _userId: string,
 ): Promise<ParsedAfkInput | null> {
   let text = rawInput.trim();
   let imageUrl = attachmentUrl;
 
-  let sinceAt = new Date();
-  let tillAt: Date | null = null;
-  const developerIds = client.config.developers.map((dev: string[]) => dev[1]);
-
-  if (developerIds.includes(userId)) {
-    const tsRegex = /<t:(\d{1,13})(?::[tTdDfFR])?>\s*$/;
-    const trailingMatch = text.match(tsRegex);
-    if (trailingMatch && typeof trailingMatch.index === 'number') {
-      text = text.slice(0, trailingMatch.index).replace(/\s+$/, '');
-      const date = new Date(Number(trailingMatch[1]) * 1000);
-      if (!Number.isNaN(date.getTime())) {
-        if (date.getTime() <= Date.now()) sinceAt = date;
-        else tillAt = date;
-      }
-    }
-  }
+  const sinceAt = new Date();
+  const tillAt: Date | null = null;
 
   if (!imageUrl) {
     const parts = text.split(/\s+/);

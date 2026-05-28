@@ -1,0 +1,90 @@
+You have to make a queue command. It accepts no arguments (ignores if provided)
+
+It sends a component v2 message (make in components directory)
+
+Cv2 message:
+
+## (Bot name) Music Queue (n Tracks)
+(separator)
+### Now Playing:
+1. (song name) - (Artist name)
+(separator)
+### Completed:
+**2.** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+**3** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+### Heading Your Way:
+
+**4.** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+...
+
+**8.** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+(dropdown to play any song from the queue [current page])
+("previous" grey button) ("page x/n" blue button) ("next" grey button)
+(separator)
+-# Thank you for using (bot name)!
+
+
+-------------
+
+Now listen carefully. The queue stores every track added since the songs started (not the player, once the queue ends, the queue is cleared)
+In the dropdown it shows all the songs on that page.
+Lets say 2 songs have been completed, then it will show as done above.
+If 3, then it will show 3 songs under completed, and then rest under heading your way.
+Max 8 songs per page.
+Lets say 11 songs have been completed, so on using queue command, the bot will open the second page directly, with 3 songs under completed, and 4 under heading your way, AND the 12th one is under now playing. The dropdown will show all the songs of that page.
+If user clicks on any song, the queue goes back to that song or goes forward to that song. Lets say user clicks on 10 song, now the 11th one is also under heading your way, 9th is under completed, 10th is in nowplaying.
+
+FIRSTLY JUST ANALYSE THE FOLLOWING AND MAKE A COMPREHENSIVE .md FILE THAT EXPLAINS THIS ALL PERFECTLY. THEN TELL ME IF YOU WILL BE ABLE TO IMPLEMENT THIS OR NOT. .md file because if you weren't able to then someone else can refer to it and complete it this exact way. Basically this queue has option of going back to the tracks one has already played!
+Also determine whether saving queue in which would be better, cache or database?
+
+-------------
+
+
+CV2 message template:
+
+## {emoji} (Bot name) Music Queue (n Tracks)
+(separator)
+### Now Playing:
+2. (source emoji) (song name) - (Artist name)
+n played ⟡ 22 upcoming
+Total session length: (total length of the queue all songs)
+(separator)
+### Completed:
+**1.** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+### Heading Your Way:
+
+**3** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+### Heading Your Way:
+
+**4.** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+...
+
+**8.** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+(dropdown to play any song from the queue [current page])
+("previous" grey button) ("page x/n" blue button) ("next" grey button)
+(separator)
+-# Thank you for using (bot name)!

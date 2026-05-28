@@ -2,7 +2,7 @@ import { HermacaClient } from '../../structures/HermacaClient.js';
 import { blacklistedServer, sendError, sendInfo, sendSuccess } from '../../components/statusMessages.js';
 import { sendWrongUsage } from '../../components/wrongUsage.js';
 import { buildBlacklistListPayload } from '../../components/blacklistList.js';
-import { escapeMarkdown } from '../../utils/formatting.js';
+import { escapeFormatting, escapeMarkdown } from '../../utils/formatting.js';
 
 export const options = {
   name: 'blacklist-server',
@@ -60,7 +60,7 @@ async function handleList(message: any, client: HermacaClient) {
   let footerNote: string | undefined;
   if (devId) {
     const devUser = await client.users.fetch(devId).catch((): null => null);
-    if (devUser) footerNote = `Owner: @${devUser.username}`;
+    if (devUser) footerNote = `Owner: @${escapeFormatting(devUser.username)}`;
   }
 
   await message.channel.send(
@@ -74,7 +74,38 @@ async function handleList(message: any, client: HermacaClient) {
   );
 }
 
+/**
+ * Returns true if the given guild is owned by any of the bot's developers.
+ * Used as the dev-protection check for `blacklist-server` — blacklisting a
+ * dev-owned guild causes the bot to leave it the moment global enforcement
+ * runs, which is almost always an accident.
+ */
+async function isDeveloperOwnedGuild(client: HermacaClient, guildId: string): Promise<boolean> {
+  const developerIds: string[] = client.config.developers.map((dev: string[]) => dev[1]);
+  const cached = client.guilds.cache.get(guildId);
+  if (cached) return developerIds.includes(cached.ownerId);
+
+  // Fall back to a REST lookup for guilds the bot isn't currently in. This
+  // lets `blacklist-server add <id>` reject dev-owned guilds even when the
+  // bot has never joined them.
+  const fetched: any = await client.guilds.fetch(guildId).catch((): null => null);
+  if (!fetched) return false;
+  const ownerId: string | undefined = fetched.ownerId ?? fetched.owner_id;
+  return ownerId ? developerIds.includes(ownerId) : false;
+}
+
 async function addServer(message: any, guildId: string, client: HermacaClient) {
+  // Hard guard — never blacklist a guild owned by a developer. Without this
+  // a dev can blacklist their own server (or the support server) and the bot
+  // immediately leaves it under global enforcement.
+  if (await isDeveloperOwnedGuild(client, guildId)) {
+    const label = formatGuild(client, guildId);
+    return sendError(
+      { message },
+      `Server **${label}** is owned by a developer and cannot be blacklisted.`,
+    );
+  }
+
   const alreadyBlacklisted = await client.db.isServerBlacklisted(guildId);
   if (alreadyBlacklisted) {
     const label = formatGuild(client, guildId);
@@ -119,10 +150,20 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
     if (alreadyEnabled) return sendInfo({ message }, 'Server blacklist is already globally enabled.');
     await client.db.setBlacklistServerGlobalEnabled(true);
     const servers = await client.db.getBlacklistedServers();
+    let cleaned = 0;
     for (const server of servers) {
+      // Self-healing: if a dev-owned guild slipped into the blacklist before
+      // the dev-guard existed, silently drop it instead of kicking the bot
+      // out of the dev's own server the moment enforcement turns on.
+      if (await isDeveloperOwnedGuild(client, server.guild_id)) {
+        await client.db.removeBlacklistedServer(server.guild_id).catch((): null => null);
+        cleaned++;
+        continue;
+      }
       await notifyAndLeaveGuild(client, server.guild_id);
     }
-    return sendSuccess({ message }, 'Server blacklist has been globally enabled.');
+    const tail = cleaned ? ` (${cleaned} developer-owned ${cleaned === 1 ? 'server was' : 'servers were'} auto-removed.)` : '';
+    return sendSuccess({ message }, `Server blacklist has been globally enabled.${tail}`);
   }
 
   if (action === 'disable') {

@@ -1,0 +1,43 @@
+Current is better than before. Good  job. :)
+TEMPLATE:
+
+# {emojis.musicHeartNote} __Nomadic Music Queue__
+(separator)
+## Now Playing
+**2.** (source emoji) (song name) - (Artist name)
+**n** played ⟡ **n** upcoming
+**Total session length:** (total length of the queue all songs)
+(separator)
+### Completed:
+**1.** (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+### Heading Your Way:
+
+**3** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+### Heading Your Way:
+
+**4.** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+
+...
+
+**8.** (source emoji) (Song name) 
+> Artist: (Artist name)
+> Requested by <username> ⟡ (duration of the song)
+(separator)
+dropdown
+buttons, also add grey "refresh button"
+(separator)
+the footer
+
+-----
+Now see, right now I played playlist, it showed song #34 playing, even when nothing was in queue before, and it was showing all other songs have been played. The playlist has 34 tracks. The song it was playing was actually at #1 index in the playlist. When I skipped it played the song which was showing at #1 index (but in actual playlist it was #2 index)
+
+Please fix this all!!!
+The indexes are wrong.

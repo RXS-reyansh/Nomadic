@@ -9,6 +9,7 @@ import {
 import { extractThumbnail, formatDuration } from '../../utils/formatting.js';
 import { unifiedSearch } from '../../helpers/sourceSearch.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { addTracks } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'play',
@@ -76,10 +77,20 @@ async function handle(
   }
 
   if (result.type === 'PLAYLIST') {
-    // Kazagumo: requester is passed to search() and stored on each track automatically
+    // ⚠ ORDER MATTERS — KazagumoQueue.add(tracks) calls `tracks.shift()` when
+    // there's no current track yet (fresh playlist). That drops the first
+    // track from `result.tracks` BEFORE we get to tag it. Always tag/register
+    // session entries FIRST, then hand the array to Kazagumo. Track instances
+    // survive the shift, so the tags placed by addTracks persist on the
+    // shifted-into-current track.
+    // Capture the playlist's first track BEFORE queue.add — KazagumoQueue.add
+    // shifts the first element out of the array when no current track exists.
+    const firstTrack = result.tracks[0];
+    const playlistCount = result.tracks.length;
+
+    addTracks(player, result.tracks, user);
     player.queue.add(result.tracks);
 
-    const firstTrack = result.tracks[0];
     // Kazagumo tracks are flat — thumbnail is direct property, fall back to extractThumbnail
     const thumbnail = firstTrack?.thumbnail ?? extractThumbnail(firstTrack) ?? undefined;
 
@@ -88,7 +99,7 @@ async function handle(
         isSlash ? { interaction } : { message, existingMessage: loadingMsg as any },
         {
           name: result.playlistName || 'Unknown Playlist',
-          trackCount: result.tracks.length,
+          trackCount: playlistCount,
           thumbnail,
         },
       );
@@ -96,6 +107,7 @@ async function handle(
   } else {
     const track = result.tracks[0];
     player.queue.add(track);
+    addTracks(player, [track], user);
 
     const queuePos = player.queue.length;
     // Kazagumo tracks are flat — no .info wrapper

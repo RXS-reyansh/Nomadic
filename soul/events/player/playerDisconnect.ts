@@ -4,6 +4,7 @@
 import logger from '../../console/logger.js';
 import { clearPlayerState } from '../../helpers/nowPlayingManager.js';
 import { clearRejoin } from '../../helpers/twentyFourSeven.js';
+import { clearSession } from '../../helpers/sessionQueue.js';
 
 export const name = 'playerDestroy';
 export const type = 'player';
@@ -16,6 +17,9 @@ export async function execute(client: any, player: any): Promise<void> {
 
   // Clear all stored state (position snapshot, message reference) for this guild
   clearPlayerState(player.guildId);
+
+  // End the session — drop all chronological history.
+  clearSession(player);
 
   // Clear inactivity timer
   if (client.helpers?.cancelInactivityTimer) {

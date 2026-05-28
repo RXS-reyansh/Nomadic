@@ -9,11 +9,15 @@
 // (`client.bootCompleted === true`), reconnects log normally.
 import logger from '../../console/logger.js';
 import webhookLogger from '../../utils/webhookLogger.js';
+import { clearNodeSilence } from './nodeError.js';
 
 export const name = 'ready';
 export const type = 'node';
 
 export const execute = (client: any, name: string, resumed: boolean): void => {
+  // Clear any silenced error keys for this node so the next outage logs fresh.
+  clearNodeSilence(name);
+
   if (resumed) {
     logger.success('NODE', `🔄 Lavalink node "${name}" resumed session.`);
     webhookLogger.logNode('reconnect', name);

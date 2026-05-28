@@ -221,15 +221,24 @@ export function formatPercent(value: number, decimals = 1): string {
 }
 
 /**
- * Escape Discord markdown formatting characters so text renders as plain text
- * inside a TextDisplay component. Escapes: \ * _ ~ ` | > # -
- * Use this for any server-generated or user-supplied text (e.g., guild names)
- * that gets placed directly into message content.
+ * Escape Discord markdown / formatting characters so text renders as plain
+ * text inside a TextDisplay component. Escapes: \ * _ ~ ` | > # -
+ * Works on any text — guild names, usernames, command output, anything that
+ * would otherwise render as bold / italic / strikethrough / code / etc.
+ * Each special character is prefixed with a backslash.
  * @param text - Raw text to escape
  * @returns Text with markdown special characters escaped
  */
-export function escapeMarkdown(text: string): string {
+export function escapeFormatting(text: string): string {
   return text.replace(/[\\*_~`|>#\-]/g, '\\$&');
+}
+
+/**
+ * Backwards-compatible alias of {@link escapeFormatting}.
+ * @deprecated Prefer `escapeFormatting` — the same logic, clearer name.
+ */
+export function escapeMarkdown(text: string): string {
+  return escapeFormatting(text);
 }
 
 /**

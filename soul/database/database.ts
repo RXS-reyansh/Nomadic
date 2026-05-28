@@ -68,6 +68,19 @@ interface BlacklistServerDoc {
   addedBy?: string;
 }
 
+interface SpotifyLinkDoc {
+  user_id: string;
+  spotify_id: string;
+  display_name?: string | null;
+  linked_at: Date;
+}
+
+interface LastfmLinkDoc {
+  user_id: string;
+  lastfm_username: string;
+  linked_at: Date;
+}
+
 // ----------------------------------------------------------------------
 // Database Class
 // ----------------------------------------------------------------------
@@ -774,6 +787,84 @@ export class Database {
       { $unset: { embed_color: '' }, $set: { updatedAt: new Date() } }
     );
     return true;
+  }
+
+  // --------------------------------------------------------------------
+  // Spotify Account Links
+  // --------------------------------------------------------------------
+
+  async getSpotifyLink(userId: string): Promise<SpotifyLinkDoc | null> {
+    await this.connect();
+    return this.collection<SpotifyLinkDoc>('spotify_links').findOne({ user_id: userId });
+  }
+
+  async isSpotifyLinked(userId: string): Promise<boolean> {
+    await this.connect();
+    return !!(await this.collection<SpotifyLinkDoc>('spotify_links').findOne({ user_id: userId }));
+  }
+
+  async linkSpotify(userId: string, spotifyId: string, displayName: string | null): Promise<boolean> {
+    await this.connect();
+    await this.collection<SpotifyLinkDoc>('spotify_links').updateOne(
+      { user_id: userId },
+      {
+        $set: { spotify_id: spotifyId, display_name: displayName, updated_at: new Date() },
+        $setOnInsert: { linked_at: new Date() },
+      },
+      { upsert: true },
+    );
+    return true;
+  }
+
+  async unlinkSpotify(userId: string): Promise<boolean> {
+    await this.connect();
+    const r = await this.collection<SpotifyLinkDoc>('spotify_links').deleteOne({ user_id: userId });
+    return r.deletedCount > 0;
+  }
+
+  // --------------------------------------------------------------------
+  // Last.fm Account Links
+  // --------------------------------------------------------------------
+
+  async getLastfmLink(userId: string): Promise<LastfmLinkDoc | null> {
+    await this.connect();
+    return this.collection<LastfmLinkDoc>('lastfm_links').findOne({ user_id: userId });
+  }
+
+  async getLastfmUsername(userId: string): Promise<string | null> {
+    const doc = await this.getLastfmLink(userId);
+    return doc?.lastfm_username ?? null;
+  }
+
+  async isLastfmLinked(userId: string): Promise<boolean> {
+    await this.connect();
+    return !!(await this.collection<LastfmLinkDoc>('lastfm_links').findOne({ user_id: userId }));
+  }
+
+  async linkLastfm(userId: string, username: string): Promise<boolean> {
+    await this.connect();
+    await this.collection<LastfmLinkDoc>('lastfm_links').updateOne(
+      { user_id: userId },
+      {
+        $set: { lastfm_username: username, updated_at: new Date() },
+        $setOnInsert: { linked_at: new Date() },
+      },
+      { upsert: true },
+    );
+    return true;
+  }
+
+  async unlinkLastfm(userId: string): Promise<boolean> {
+    await this.connect();
+    const r = await this.collection<LastfmLinkDoc>('lastfm_links').deleteOne({ user_id: userId });
+    return r.deletedCount > 0;
+  }
+
+  /** Returns Map<discordUserId, lastfmUsername>. Used by whoknows / leaderboard. */
+  async getAllLastfmLinks(): Promise<Map<string, string>> {
+    await this.connect();
+    const docs = await this.collection<LastfmLinkDoc>('lastfm_links').find().toArray();
+    return new Map(docs.map((d: LastfmLinkDoc) => [d.user_id, d.lastfm_username]));
   }
 
   // --------------------------------------------------------------------

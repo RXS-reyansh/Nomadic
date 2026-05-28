@@ -5,6 +5,7 @@
 import { HermacaClient } from '../../structures/HermacaClient.js';
 import { sendError, sendInfo, sendSuccess } from '../../components/statusMessages.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { clearUpcoming } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'clear',
@@ -34,6 +35,7 @@ async function handle(
   if (count === 0) return sendInfo(ctxObj, 'The queue is already empty.');
 
   player.queue.clear();
+  clearUpcoming(player);
   await updateNowPlayingMessage(client, player).catch((): null => null);
   return sendSuccess(ctxObj, `Cleared **${count}** track${count !== 1 ? 's' : ''} from the queue.`);
 }

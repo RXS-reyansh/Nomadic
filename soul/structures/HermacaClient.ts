@@ -136,7 +136,7 @@ export class HermacaClient extends Client {
         secure: node.secure || false,
       })),
       {
-        moveOnDisconnect: false,
+        moveOnDisconnect: true,
         resume: false,
         resumeTimeout: 30,
         reconnectTries: Infinity,

@@ -1,0 +1,19 @@
+[THIS HAS BEEN DROPPED!]
+
+Make a new developer only command: dev-access
+
+Arguments: add/remove/enable/disable <command-name> <user id, or username or user mention> [time]
+
+Now see, it can be used to give access to a non-developer user to a certain developer only command (that are under developer category). Time so that it remains for a certain period of time (optional).
+
+Example: dev-access add special-afk <some user>
+Then that user can use special-afk command as long they have access. To remove: dev-access remove special-afk <that user>
+
+No argument as "all", only one by one commands access can be given.
+
+dev-access disable: disables all access given to everyone across discord
+
+dev-access enable: enables!
+
+another example: dev-access add special-purge <user> 1h
+The user has access for 1 hour!

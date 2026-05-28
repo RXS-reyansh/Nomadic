@@ -11,6 +11,7 @@ import { sendError, sendSuccess } from '../../components/statusMessages.js';
 import { sendWrongUsage } from '../../components/wrongUsage.js';
 import { unifiedSearch } from '../../helpers/sourceSearch.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { insertTracks } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'add',
@@ -56,6 +57,7 @@ async function handle(
   const idx = position - 1;
   if (result.type === 'PLAYLIST') {
     player.queue.splice(idx, 0, ...result.tracks);
+    insertTracks(player, position, result.tracks, ctx.user);
     await updateNowPlayingMessage(client, player).catch((): null => null);
     return sendSuccess(
       ctxObj,
@@ -64,6 +66,7 @@ async function handle(
   } else {
     const track = result.tracks[0];
     player.queue.splice(idx, 0, track);
+    insertTracks(player, position, [track], ctx.user);
     await updateNowPlayingMessage(client, player).catch((): null => null);
     return sendSuccess(ctxObj, `Added **${track.title}** at position **#${position}**.`);
   }

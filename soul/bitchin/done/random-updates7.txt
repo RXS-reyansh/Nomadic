@@ -1,0 +1,23 @@
+1) Remove cluster and shard from ping message, they are already in debug. Shift "The bot is NOT working properly." OR "The bot is working perfectly." in place of cluster (emoji should be there)
+
+2) Debug shouldn't be developer only command, it can be used by anyone. Shift it to info directory and make its slash.
+
+3) Steal command should be able to steal any emoji or sticker. It is failing to do so. (the first attached screenshot shows this) See every emoji and sticker is an object of discord, so this is possible for sure.
+
+4) In blacklist server message, the first developer's username is shown, right? The problem is that right now the actual username has some formatting symbols. Make a helper that exludes formatting symbols in any text (right now there is one for server name). And use that helper to remove the formatting in blacklist server message. Basically \ is used before formatting symbol.
+
+5) FIX: Websocket Ping and Heartbeat shows N/A
+
+6) double 's' in afk removed message. For example: decadess, hourss, minutess, secondss (fix this)
+
+7) In seek, minutes can't be over 60. BUT seconds can be over 60. Anywhere seconds can be over 60. (second screenshot shows this) AND, simplify this error message. It is too long and complex for a simple user to understand. Don't oversimplify but simplify a little bit.
+
+8) On stopping the player using the stop button in nowplaying, the bot leaves the 24/7 channel. It shouldn't! This isn't the issue with stop command. Both should've same functionality right? All nowplaying buttons should behave similar to their commands.
+
+9) List all the commands which don't have their slash command in a .md file (just list, nothing else)
+
+10) many bots have snipe command, now the problem is that when a user deletes messages using purge command (of any bot), then such snipe commands just show the purge message, not the actual messages. IS THERE ANY WAY TO SEE THE ACTUAL MESSAGES THAT WERE DELETED BY ANY BOT USING PURGE? IF YES I WOULD WANT A snipe command in this bot. (don't implement this one yet, just analyse and tell)
+
+11) in afk, when a developer provides a timestamp at end, the bot takes it as time since developer was afk right? BUT, this just doesn't work when the time is too much, for example 100 years ago, 100 years after. WHY? can you fix this? It should take any time provided but it fails for too much after and before time.
+
+12) emoji should be developer only command, shift it to developer directory too!

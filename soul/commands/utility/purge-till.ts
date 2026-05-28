@@ -93,6 +93,55 @@ async function askConfirmation(
 }
 
 /**
+ * Slash-flavoured confirmation. Edits the deferred interaction reply with the
+ * confirm payload, then collects on that reply. On confirm we delete the reply,
+ * run onConfirm, and the success message is sent as a fresh channel message
+ * (so it doesn't replace the deleted prompt). Cancel/timeout edit the reply.
+ */
+async function askConfirmationSlash(
+  interaction: any,
+  description: string,
+  onConfirm: () => Promise<void>,
+): Promise<void> {
+  const confirmId = `pt:confirm:${interaction.id}`;
+  const cancelId = `pt:cancel:${interaction.id}`;
+
+  const confirmMsg: any = await interaction.editReply(
+    buildPurgeConfirmPayload(confirmId, cancelId, description),
+  );
+
+  const collector = confirmMsg.createMessageComponentCollector({
+    filter: (i: any) =>
+      (i.customId === confirmId || i.customId === cancelId) &&
+      i.user.id === interaction.user.id,
+    max: 1,
+    time: 30_000,
+  });
+
+  collector.on('collect', async (i: any) => {
+    await i.deferUpdate().catch((): null => null);
+    if (i.customId === confirmId) {
+      await interaction.deleteReply().catch((): null => null);
+      await onConfirm();
+    } else {
+      await interaction
+        .editReply(buildPurgeCancelledPayload(confirmId, cancelId, description))
+        .catch((): null => null);
+      setTimeout(async () => {
+        await interaction.deleteReply().catch((): null => null);
+      }, 3000);
+    }
+  });
+
+  collector.on('end', (_c: any, reason: string) => {
+    if (reason !== 'time') return;
+    interaction
+      .editReply(buildPurgeTimedOutPayload(confirmId, cancelId, description))
+      .catch((): null => null);
+  });
+}
+
+/**
  * Walk the channel forward from `afterId` and return up to `maxCount` messages
  * (oldest-first). When `maxCount` is null, returns ALL messages after the target.
  * The command message itself is always excluded.
@@ -191,5 +240,50 @@ export async function prefixExecute(message: any, args: string[], _client: Herma
     const count = await deleteFetched(msgs);
     const reply = await sendSuccess(ctx, `Successfully deleted ${count} message${count !== 1 ? 's' : ''}.`);
     scheduleCleanup(message, reply, CLEANUP_DELAY);
+  });
+}
+
+export async function slashExecute(interaction: any, _client: HermacaClient) {
+  await interaction.deferReply();
+  const ctx = { interaction };
+
+  if (!interaction.guild) return sendError(ctx, 'This command can only be used in a server.');
+
+  const targetArg: string = interaction.options.getString('target', true);
+  const countArg: number | null = interaction.options.getInteger('count');
+
+  const parsed = parseTarget(targetArg, interaction.channelId);
+  if (!parsed) {
+    return sendError(ctx, 'Invalid target. Provide a message ID or a Discord message link.');
+  }
+  if (!parsed.sameChannel) {
+    return sendError(ctx, 'The target message link must point to **this** channel.');
+  }
+
+  const maxCount: number | null = countArg ?? null;
+  if (maxCount !== null && maxCount <= 0) {
+    return sendError(ctx, 'Amount must be a positive number.');
+  }
+
+  const channel: any = interaction.channel;
+  const target = await channel.messages.fetch(parsed.messageId).catch((): null => null);
+  if (!target) return sendError(ctx, 'Target message not found in this channel.');
+
+  const desc =
+    maxCount !== null
+      ? `Are you sure you want to delete the **next ${maxCount} messages after** [this message](${target.url})?`
+      : `Are you sure you want to delete **all messages after** [this message](${target.url})?`;
+
+  return askConfirmationSlash(interaction, desc, async () => {
+    const msgs = await fetchMessagesAfter(channel, parsed.messageId, '__none__', maxCount);
+    if (msgs.length === 0) {
+      await sendInfo({ interaction, asReply: false }, 'No messages to delete after the target.');
+      return;
+    }
+    const count = await deleteFetched(msgs);
+    await sendSuccess(
+      { interaction, asReply: false },
+      `Successfully deleted ${count} message${count !== 1 ? 's' : ''}.`,
+    );
   });
 }

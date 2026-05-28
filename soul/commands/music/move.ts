@@ -6,6 +6,7 @@ import { HermacaClient } from '../../structures/HermacaClient.js';
 import { sendError, sendSuccess } from '../../components/statusMessages.js';
 import { sendWrongUsage } from '../../components/wrongUsage.js';
 import { updateNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
+import { moveUpcoming } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'move',
@@ -41,6 +42,7 @@ async function handle(
 
   const [track] = player.queue.splice(from - 1, 1);
   player.queue.splice(to - 1, 0, track);
+  moveUpcoming(player, from, to);
   await updateNowPlayingMessage(client, player).catch((): null => null);
   return sendSuccess(ctxObj, `Moved **${track?.title ?? 'track'}** from **#${from}** to **#${to}**.`);
 }

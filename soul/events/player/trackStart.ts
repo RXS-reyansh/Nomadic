@@ -5,6 +5,7 @@ import logger from '../../console/logger.js';
 import webhookLogger from '../../utils/webhookLogger.js';
 import { deleteOldNowPlayingMessage, sendNowPlayingMessage } from '../../helpers/nowPlayingManager.js';
 import { clearRejoin } from '../../helpers/twentyFourSeven.js';
+import { syncToPlayer } from '../../helpers/sessionQueue.js';
 
 export const name = 'playerStart';
 export const type = 'player';
@@ -12,6 +13,10 @@ export const type = 'player';
 export async function execute(client: any, player: any, track: any): Promise<void> {
   const guild = client.guilds.cache.get(player.guildId);
   if (!guild) return;
+
+  // Keep the session queue's currentIndex aligned with what's actually playing
+  // (handles natural advance, skip, skipto, rewind/fast-forward, and loops).
+  syncToPlayer(player);
 
   if (client.helpers?.cancelInactivityTimer) {
     client.helpers.cancelInactivityTimer(player.guildId);

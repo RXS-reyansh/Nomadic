@@ -7,6 +7,8 @@ import { join } from 'path';
 import { version as djsVersion } from 'discord.js';
 import { formatUptime, formatCreatedAt } from '../utils/formatting.js';
 import debugConfig from '../config/debug-config.js';
+import { resolveWsPing } from '../utils/wsPing.js';
+import { findBotInstanceByClientId } from '../config/botInstances.js';
 
 // ─────────────────────────── Types ───────────────────────────
 
@@ -180,9 +182,9 @@ async function getLavalinkServerVersion(client: any): Promise<string> {
 export async function gatherDebugStats(client: any, apiMs: number): Promise<DebugStats> {
   const pkg = readPkg();
   const config = client.config ?? {};
-  const fakeLower: number = config.fakeLowerCpuUsage ?? 3.0;
-  const fakeUpper: number = config.fakeUpperCpuUsage ?? 5.0;
-  const minRamMB: number = config.minTotalRamMB ?? 8092;
+  const fakeLower: number = debugConfig.fakeLowerCpuUsage ?? 3.0;
+  const fakeUpper: number = debugConfig.fakeUpperCpuUsage ?? 5.0;
+  const minRamMB: number = debugConfig.minTotalRamMB ?? 8092;
 
   const cluster = (client as any).cluster;
 
@@ -240,23 +242,18 @@ export async function gatherDebugStats(client: any, apiMs: number): Promise<Debu
   const clusterId: number = cluster?.id ?? 0;
   const shardId: number = client.guilds?.cache?.first()?.shardId ?? (client.ws?.shards?.keys?.().next?.().value ?? 0);
   // client.ws.ping returns -1 when no heartbeat ACK has been received yet.
-  // Fall back to the first shard's individual ping for a usable number.
-  let heartbeatMs: number = client.ws?.ping ?? -1;
-  if (heartbeatMs < 0) {
-    const shardPing = client.ws?.shards?.first?.()?.ping;
-    if (typeof shardPing === 'number') heartbeatMs = shardPing;
-  }
+  // Walk every shard and fall back to the API round-trip latency so the
+  // debug menu never reports "N/A" for a healthy bot.
+  const resolvedPing = resolveWsPing(client, apiMs);
+  const heartbeatMs: number = resolvedPing ?? -1;
   const totalClusters: number = cluster?.count ?? 1;
   const totalShards: number = client.ws?.shards?.size ?? 1;
 
   // ── Architecture ──
-  let buildName = config.botName ?? 'Hermaca';
-  if (config.botInstances) {
-    const userId = client.user?.id;
-    const matchedInstance = Object.values(config.botInstances as Record<string, any>)
-      .find((inst: any) => inst.clientId === userId && inst.buildName);
-    if (matchedInstance?.buildName) buildName = matchedInstance.buildName;
-  }
+  // buildName comes from soul/config/botInstances.ts, matched by the running
+  // bot's clientId. Falls back to config.botName if no instance matches.
+  const matchedInstance = findBotInstanceByClientId(client.user?.id);
+  const buildName: string = matchedInstance?.buildName ?? config.botName ?? 'Hermaca';
 
   // Kazagumo: read kazagumo version from package.json dependencies
   const kazagumoVersion: string = (pkg.dependencies?.kazagumo ?? '').replace(/^\^|~/, '') || 'N/A';
@@ -264,7 +261,9 @@ export async function gatherDebugStats(client: any, apiMs: number): Promise<Debu
 
   // ── Lavalink ──
   // Kazagumo: nodes on client.kazagumo.shoukaku.nodes (Map)
-  const lavaNode: any = [...((client.kazagumo as any)?.shoukaku?.nodes?.values() ?? [])][0];
+  // Prefer the first CONNECTED node (state === 1); fall back to the first node if none are connected.
+  const allNodes: any[] = [...((client.kazagumo as any)?.shoukaku?.nodes?.values() ?? [])];
+  const lavaNode: any = allNodes.find((n: any) => n.state === 1) ?? allNodes[0];
   const nodeName: string = lavaNode?.name ?? 'Unknown';
   // Kazagumo/Shoukaku: node.state === 1 means connected
   const nodeConnected: boolean = lavaNode?.state === 1;

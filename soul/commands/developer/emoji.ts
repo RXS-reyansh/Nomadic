@@ -1,6 +1,6 @@
-// soul/commands/utility/emoji.ts
+// soul/commands/developer/emoji.ts
 //
-// Send one or more emojis as a message.
+// Send one or more emojis as a message. Restricted to developers.
 //
 // Emoji identifiers are separated by |$| (no space between emojis)
 // or by spaces (space between emojis).
@@ -12,18 +12,18 @@
 //   $$emoji hello world               → hello world (space)
 
 import { HermacaClient } from '../../structures/HermacaClient.js';
-import { sendError, sendSuccess } from '../../components/statusMessages.js';
+import { sendError } from '../../components/statusMessages.js';
 import { resolveEmoji } from '../../helpers/emojiResolver.js';
 
 export const options = {
   name: 'emoji',
   aliases: ['em'] as string[],
-  description: 'Send one or more emojis as a message.',
+  description: 'Send one or more emojis as a message (developer only).',
   usage: `emoji <name or ID>
   emoji <name1>|$|<name2>
   emoji <name1> <name2>`,
-  category: 'utility',
-  isDeveloper: false,
+  category: 'developer',
+  isDeveloper: true,
   userPerms: [] as string[],
   botPerms: [] as string[],
   player: false,
@@ -41,8 +41,6 @@ const NO_SPACE_SEP = '|$|';
 function parseInput(input: string): string[][] {
   return input.split(/\s+/).map((token) => token.split(NO_SPACE_SEP));
 }
-
-// ─── Prefix execute ──────────────────────────────────────────────────────────
 
 export async function prefixExecute(message: any, args: string[], client: HermacaClient) {
   const input = args.join(' ').trim();
@@ -94,48 +92,4 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
     );
     if (errMsg) setTimeout(() => (errMsg as any).delete().catch(() => {}), 6000);
   }
-}
-
-// ─── Slash execute ───────────────────────────────────────────────────────────
-
-export async function slashExecute(interaction: any, client: HermacaClient) {
-  await interaction.deferReply();
-
-  const input: string = interaction.options.getString('emojis', true).trim();
-  const groups = parseInput(input);
-  const resolvedGroups: string[] = [];
-  const invalid: string[] = [];
-
-  for (const group of groups) {
-    const resolvedParts: string[] = [];
-    for (const ident of group) {
-      if (!ident) continue;
-      const emoji = await resolveEmoji(client, ident, interaction.guild);
-      if (emoji) {
-        resolvedParts.push(emoji.toString());
-      } else {
-        invalid.push(ident);
-      }
-    }
-    if (resolvedParts.length) resolvedGroups.push(resolvedParts.join(''));
-  }
-
-  const finalString = resolvedGroups.join(' ').trim();
-
-  if (!finalString && invalid.length) {
-    return sendError({ interaction }, 'All provided emoji identifiers were invalid!');
-  }
-
-  if (finalString) {
-    await interaction.channel.send(finalString);
-  }
-
-  if (invalid.length) {
-    return sendError(
-      { interaction },
-      `Some emoji identifiers were invalid:\n${invalid.map((id) => `• \`${id}\``).join('\n')}`,
-    );
-  }
-
-  return sendSuccess({ interaction }, 'Emoji message sent.');
 }

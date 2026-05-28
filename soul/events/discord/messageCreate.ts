@@ -143,12 +143,23 @@ export async function execute(client: any, message: any): Promise<void> {
     return;
   }
 
-  if (
-    await client.db?.getBlacklistGlobalEnabled() &&
-    await client.db?.isUserBlacklisted(message.author.id)
-  ) {
-    await blacklistedUser({ message }).catch((): null => null);
-    return;
+  // Blacklist gate — developers ALWAYS bypass, and any stale blacklist
+  // entry for a developer is auto-cleaned so the bot self-heals if a dev
+  // accidentally added themselves before the dev-guard was in place.
+  {
+    const developerIds: string[] = client.config.developers.map((dev: string[]) => dev[1]);
+    const isDev = developerIds.includes(message.author.id);
+    if (
+      await client.db?.getBlacklistGlobalEnabled() &&
+      await client.db?.isUserBlacklisted(message.author.id)
+    ) {
+      if (isDev) {
+        await client.db.removeBlacklistedUser(message.author.id).catch((): null => null);
+      } else {
+        await blacklistedUser({ message }).catch((): null => null);
+        return;
+      }
+    }
   }
 
   // Validate permissions, developer-only status, cooldowns, etc.

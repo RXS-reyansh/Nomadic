@@ -39,6 +39,18 @@ export const categories: CategoryInfo[] = [
     displayName: 'VC Controls',
     description: 'Manage voice channel states — join, leave, mute, deafen, shift, and more.',
   },
+  {
+    index: 6,
+    name: 'spotify',
+    displayName: 'Spotify',
+    description: 'Link your Spotify account and play your public playlists.',
+  },
+  {
+    index: 7,
+    name: 'lastfm',
+    displayName: 'Last.fm',
+    description: 'Link your Last.fm account, see your scrobbles, top charts, and more.',
+  },
 ];
 
 /**
