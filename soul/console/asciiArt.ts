@@ -5,7 +5,8 @@
 // interpolating between the four stops in `asciiPalette` (color-config.ts).
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { asciiPalette } from './color-config.js';
 
 const RESET = '\x1b[0m';
@@ -54,7 +55,9 @@ function getGradientColors(): string[] {
 export function displayAsciiArt(): void {
   let raw = '';
   try {
-    raw = readFileSync(join(process.cwd(), 'soul', 'console', 'ascii.txt'), 'utf8');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    raw = readFileSync(join(__dirname, 'ascii.txt'), 'utf8');
   } catch {
     return;
   }

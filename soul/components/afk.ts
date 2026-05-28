@@ -82,7 +82,7 @@ export function buildAfkNoticePayload(options: AfkNoticeOptions): any {
   const mentionedAt = formatClock(options.mentionedAt ?? new Date());
   const untilLine = options.tillAt ? `\nTill: ${toRelativeTimestamp(options.tillAt)}` : '';
   const container = new ContainerBuilder()
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${emojis.whiteGhost} ${options.displayName} is Away from Keyboard!`))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${emojis.whiteGhost} ${options.displayName} is Away from Keyboard!`))
     .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(`Since: ${since}${untilLine}\nReason: ${options.reason}`),
@@ -96,7 +96,7 @@ export function buildAfkNoticePayload(options: AfkNoticeOptions): any {
 
   container
     .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Mentioned by ${options.mentionedBy} at ${mentionedAt}`));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Mentioned by ${options.mentionedBy} at ${mentionedAt} UTC`));
 
   return {
     components: [container],
