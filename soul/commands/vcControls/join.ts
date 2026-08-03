@@ -52,7 +52,9 @@ async function handle(
   let player: any = client.kazagumo.players.get(guild.id);
   if (player) {
     if (player.voiceId !== targetChannel.id) {
-      await player.setVoiceChannel(targetChannel.id).catch((): null => null);
+      // setVoiceChannel() is synchronous (returns the player, not a Promise).
+      // Wrapping in try/catch to silence any edge-case errors.
+      try { player.setVoiceChannel(targetChannel.id); } catch { /* ignore */ }
     }
   } else {
     player = await client.kazagumo.createPlayer({

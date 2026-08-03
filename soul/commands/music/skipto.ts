@@ -2,6 +2,7 @@
 import { HermacaClient } from '../../structures/HermacaClient.js';
 import { sendError, sendSuccess } from '../../components/statusMessages.js';
 import { sendWrongUsage } from '../../components/wrongUsage.js';
+import { getSession } from '../../helpers/sessionQueue.js';
 
 export const options = {
   name: 'skipto',
@@ -30,13 +31,31 @@ async function handle(
   if (!player || !player.queue?.current) return sendError(ctxObj, 'There is nothing currently playing.');
   if (!player.queue.length) return sendError(ctxObj, 'The queue is empty.');
 
-  if (position < 1 || position > player.queue.length) {
-    return sendError(ctxObj, `Position must be between 1 and ${player.queue.length}.`);
+  // The queue panel numbers every entry as (absIndex + 1), where absIndex is
+  // its position in the session entries array.  player.queue holds only the
+  // *upcoming* tracks (the current track is NOT included), so the first
+  // upcoming track is displayed as (currentIndex + 2).
+  //
+  //   player.queue[i]  ←→  session entry (currentIndex + 1 + i)
+  //                    displayed as  (currentIndex + 2 + i)
+  //
+  // To play the entry shown as `position`, we remove (position - currentIndex - 2)
+  // items from the front of the queue, then skip() fires TrackEnd which plays
+  // what is now at the front.
+  const state = getSession(player);
+  const currentIdx: number = state.currentIndex;  // -1 if no track has started
+
+  // queueBase = display number of player.queue[0]
+  const queueBase = currentIdx + 2;               // (-1+2=1) when nothing has played yet
+  const minPos = queueBase;
+  const maxPos = queueBase + player.queue.length - 1;
+
+  if (position < minPos || position > maxPos) {
+    return sendError(ctxObj, `Position must be between **${minPos}** and **${maxPos}**.`);
   }
 
-  // Remove all tracks before the target position, then skip to play it
-  // KazagumoQueue extends Array — splice works directly
-  player.queue.splice(0, position - 1);
+  const spliceCount = position - queueBase;        // 0 = play queue[0] as-is
+  if (spliceCount > 0) player.queue.splice(0, spliceCount);
   player.skip();
 
   return sendSuccess(ctxObj, `Skipped to position **#${position}** in the queue.`);

@@ -28,6 +28,7 @@ interface IpInfoResponse {
  *
  * Output format (boot-block spec):
  *   [HOST] 🌐 Hosting service IP: <ip>/32
+ *   [HOST] 🌐 Hosting service org: <org>
  *   [HOST] 🌐 Hosting service hardcoded as: <name>     ← only if hardcoded
  *
  * The /32 mask is hardcoded per spec.
@@ -37,6 +38,7 @@ export async function getHostingServiceIP(): Promise<void> {
   hasLogged = true;
 
   let ip: string | null = null;
+  let org: string | null = null;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -48,15 +50,23 @@ export async function getHostingServiceIP(): Promise<void> {
     if (response.ok) {
       const data = (await response.json()) as IpInfoResponse;
       ip = data.ip ?? null;
+      org = data.org ?? null;
     }
   } catch {
     ip = null;
+    org = null;
   }
 
   if (ip) {
     logger.info('HOST', `🌐 Hosting service IP: ${ip}/32`);
   } else {
     logger.warn('HOST', `🌐 Hosting service IP: unknown/32`);
+  }
+
+  if (org) {
+    logger.info('HOST', `🌐 Hosting service org: ${org}`);
+  } else {
+    logger.warn('HOST', `🌐 Hosting service org: unknown`);
   }
 
   // Resolve display name

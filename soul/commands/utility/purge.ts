@@ -32,6 +32,7 @@ export const options = {
   usage: `purge all
   purge text <"term1"> ["term2"] ... (up to 10 terms)
   purge bot [amount]
+  purge humans [amount]
   purge user <@user|ID|username> [amount]
   purge amount <n>
   purge <n>
@@ -302,6 +303,24 @@ export async function prefixExecute(message: any, args: string[], client: Hermac
     );
   }
 
+  // ── purge humans ──────────────────────────────────────────────────────────
+  if (sub === 'humans') {
+    const amountRaw = args[1];
+    const maxCount = amountRaw && /^\d+$/.test(amountRaw) ? parseInt(amountRaw, 10) : null;
+    if (maxCount !== null && maxCount <= 0) {
+      return sendError(statusCtx, 'Amount must be a positive number.');
+    }
+
+    const desc =
+      maxCount !== null
+        ? `Are you sure you want to delete **${maxCount} human (non-bot) messages** in this channel?`
+        : 'Are you sure you want to delete **all human (non-bot) messages** in this channel?';
+
+    return askConfirmation(message, desc, () =>
+      runFilteredDelete(statusCtx, channel, cmdId, (m: any) => !m.author.bot, maxCount, 'No human messages found.', message),
+    );
+  }
+
   // ── purge user ────────────────────────────────────────────────────────────
   if (sub === 'user') {
     if (args.length < 2) {
@@ -431,6 +450,21 @@ export async function slashExecute(interaction: any, client: HermacaClient) {
         : 'Are you sure you want to delete **all bot messages** in this channel?';
     return askConfirmationSlash(interaction, desc, () =>
       runFilteredDelete(successCtx, channel, cmdId, (m: any) => m.author.bot, maxCount, 'No bot messages found.', null),
+    );
+  }
+
+  // ── /purge humans ─────────────────────────────────────────────────────────
+  if (sub === 'humans') {
+    const maxCount: number | null = interaction.options.getInteger('count');
+    if (maxCount !== null && maxCount <= 0) {
+      return sendError(ctx, 'Amount must be a positive number.');
+    }
+    const desc =
+      maxCount !== null
+        ? `Are you sure you want to delete **${maxCount} human (non-bot) messages** in this channel?`
+        : 'Are you sure you want to delete **all human (non-bot) messages** in this channel?';
+    return askConfirmationSlash(interaction, desc, () =>
+      runFilteredDelete(successCtx, channel, cmdId, (m: any) => !m.author.bot, maxCount, 'No human messages found.', null),
     );
   }
 

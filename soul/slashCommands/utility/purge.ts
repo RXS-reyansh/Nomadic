@@ -31,6 +31,17 @@ export const data = new SlashCommandBuilder()
       ),
   )
   .addSubcommand(sc =>
+    sc.setName('humans')
+      .setDescription('Delete human (non-bot) messages in this channel (with confirmation).')
+      .addIntegerOption(o =>
+        o.setName('count')
+          .setDescription('Maximum number of human messages to delete. Omit for all.')
+          .setRequired(false)
+          .setMinValue(1)
+          .setMaxValue(1000),
+      ),
+  )
+  .addSubcommand(sc =>
     sc.setName('user')
       .setDescription('Delete messages from a specific user (with confirmation).')
       .addUserOption(o =>

@@ -39,6 +39,17 @@ async function handle(
       // it is NOT a Promise, so do NOT await or .catch() it.
       player.skip();
     }
+
+    // If the bot is currently in a different channel than the 24/7 channel,
+    // switch to it. setVoiceChannel() is synchronous — no .catch() needed.
+    if (is247.channelId && player.voiceId !== is247.channelId) {
+      try { player.setVoiceChannel(is247.channelId); } catch { /* ignore */ }
+      return sendSuccess(
+        ctxObj,
+        `Stopped playback and cleared the queue. (Moved to the 24/7 channel <#${is247.channelId}>.)`,
+      );
+    }
+
     return sendSuccess(
       ctxObj,
       'Stopped playback and cleared the queue. (24/7 mode is enabled — staying in the voice channel.)',
